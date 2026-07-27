@@ -139,7 +139,7 @@ p { margin: 0; }
   gap: 32px;
 }
 .brand { display: flex; align-items: center; }
-.brand img { height: 30px; width: auto; }
+.brand img { height: 48px; width: auto; }
 
 .main-nav {
   display: flex;
