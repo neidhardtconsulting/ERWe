@@ -59,14 +59,37 @@
 
   var lightbox = document.createElement('div');
   lightbox.className = 'lightbox';
-  lightbox.innerHTML = '<button class="lightbox-close" aria-label="Schließen">&times;</button><img alt="">';
+  lightbox.innerHTML = '<button class="lightbox-nav lightbox-prev" aria-label="Vorheriges Bild">&#8249;</button>' +
+    '<button class="lightbox-close" aria-label="Schließen">&times;</button>' +
+    '<img alt="">' +
+    '<button class="lightbox-nav lightbox-next" aria-label="Nächstes Bild">&#8250;</button>';
   document.body.appendChild(lightbox);
   var lightboxImg = lightbox.querySelector('img');
   var lightboxClose = lightbox.querySelector('.lightbox-close');
+  var lightboxPrev = lightbox.querySelector('.lightbox-prev');
+  var lightboxNext = lightbox.querySelector('.lightbox-next');
+  var lightboxGroup = [];
+  var lightboxIndex = 0;
 
-  function openLightbox(src, alt) {
-    lightboxImg.src = src;
-    lightboxImg.alt = alt || '';
+  function groupFor(img) {
+    var thumb = img.closest('.thumb');
+    var container = (thumb && thumb.parentElement) || img.parentElement;
+    return Array.prototype.slice.call(container.querySelectorAll('.thumb img'));
+  }
+
+  function showLightboxIndex(i) {
+    lightboxIndex = (i + lightboxGroup.length) % lightboxGroup.length;
+    var img = lightboxGroup[lightboxIndex];
+    lightboxImg.src = img.currentSrc || img.src;
+    lightboxImg.alt = img.alt || '';
+    var multi = lightboxGroup.length > 1;
+    lightboxPrev.hidden = !multi;
+    lightboxNext.hidden = !multi;
+  }
+
+  function openLightbox(img) {
+    lightboxGroup = groupFor(img);
+    showLightboxIndex(lightboxGroup.indexOf(img));
     lightbox.classList.add('is-open');
     document.body.style.overflow = 'hidden';
   }
@@ -76,16 +99,22 @@
   }
 
   document.querySelectorAll('.thumb img').forEach(function (img) {
-    img.addEventListener('click', function () {
-      openLightbox(img.currentSrc || img.src, img.alt);
+    img.addEventListener('click', function (e) {
+      e.preventDefault();
+      openLightbox(img);
     });
   });
+  lightboxPrev.addEventListener('click', function () { showLightboxIndex(lightboxIndex - 1); });
+  lightboxNext.addEventListener('click', function () { showLightboxIndex(lightboxIndex + 1); });
   lightboxClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', function (e) {
     if (e.target === lightbox) { closeLightbox(); }
   });
   document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('is-open')) { return; }
     if (e.key === 'Escape') { closeLightbox(); }
+    else if (e.key === 'ArrowLeft') { showLightboxIndex(lightboxIndex - 1); }
+    else if (e.key === 'ArrowRight') { showLightboxIndex(lightboxIndex + 1); }
   });
 
   var revealEls = document.querySelectorAll('.reveal');
