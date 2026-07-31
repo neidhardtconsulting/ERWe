@@ -57,6 +57,37 @@
     });
   }
 
+  var lightbox = document.createElement('div');
+  lightbox.className = 'lightbox';
+  lightbox.innerHTML = '<button class="lightbox-close" aria-label="Schließen">&times;</button><img alt="">';
+  document.body.appendChild(lightbox);
+  var lightboxImg = lightbox.querySelector('img');
+  var lightboxClose = lightbox.querySelector('.lightbox-close');
+
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.thumb img').forEach(function (img) {
+    img.addEventListener('click', function () {
+      openLightbox(img.currentSrc || img.src, img.alt);
+    });
+  });
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) { closeLightbox(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeLightbox(); }
+  });
+
   var revealEls = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && revealEls.length) {
     var io = new IntersectionObserver(function (entries) {
