@@ -299,7 +299,7 @@ p { margin: 0; }
 
 /* Hero image slideshow */
 .hero-bg-slideshow {
-  background: var(--navy) url('../img/coesfeld-1.jpg') center / cover no-repeat;
+  background: var(--navy) url('../img/hero-header-presse.jpg') center / cover no-repeat;
 }
 .hero-slide-el {
   position: absolute; inset: 0;
