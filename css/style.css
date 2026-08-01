@@ -142,20 +142,29 @@ p { margin: 0; }
 
 .main-nav {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 30px;
   flex: 1;
   justify-content: flex-end;
   margin-right: 36px;
+  height: 100%;
 }
-.main-nav a {
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.main-nav .nav-item > a {
   font-size: 0.92rem;
   font-weight: 500;
   color: var(--ink);
   position: relative;
   padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.main-nav a::after {
+.main-nav .nav-item > a::after {
   content: "";
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -165,9 +174,64 @@ p { margin: 0; }
   transform-origin: left;
   transition: transform .25s ease;
 }
-.main-nav a:hover::after,
-.main-nav a.active::after { transform: scaleX(1); }
-.main-nav a.active { color: var(--cobalt); }
+.main-nav .nav-item > a:hover::after,
+.main-nav .nav-item > a.active::after { transform: scaleX(1); }
+.main-nav .nav-item > a.active { color: var(--cobalt); }
+
+.nav-caret {
+  width: 8px; height: 8px;
+  flex-shrink: 0;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  opacity: 0.55;
+  transition: transform .2s ease, opacity .2s ease;
+}
+.nav-item:hover .nav-caret,
+.nav-item:focus-within .nav-caret { transform: rotate(225deg) translateY(1px); opacity: 0.9; }
+
+/* Dropdown submenu (TAG Immobilien AG-Anlehnung) */
+.nav-dropdown {
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  min-width: 250px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 44px rgba(11,27,46,0.14);
+  padding: 10px;
+  margin-top: 12px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+  z-index: 50;
+}
+/* Invisible bridge so the pointer can travel from link to panel without the hover gap closing it */
+.nav-dropdown::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: -12px; height: 12px;
+}
+.nav-item:hover .nav-dropdown,
+.nav-item:focus-within .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.nav-dropdown a {
+  display: block;
+  padding: 11px 16px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: background .15s ease, color .15s ease;
+}
+.nav-dropdown a:hover { background: var(--paper-alt); color: var(--cobalt); }
 
 .nav-actions { display: flex; align-items: center; padding-left: 28px; border-left: 1px solid var(--line); }
 .nav-toggle {
@@ -183,15 +247,32 @@ p { margin: 0; }
     background: #fff;
     flex-direction: column;
     justify-content: flex-start;
+    align-items: stretch;
     padding: 40px var(--pad);
     gap: 6px;
     transform: translateY(-8px);
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease, transform .25s ease;
+    overflow-y: auto;
+    height: auto;
   }
   .main-nav.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
-  .main-nav a { width: 100%; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 1.1rem; }
+  .nav-item { flex-direction: column; align-items: stretch; }
+  .main-nav .nav-item > a {
+    width: 100%; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 1.1rem;
+  }
+  .nav-caret { display: none; }
+  /* On touch/mobile there is no hover: show submenus inline, always expanded */
+  .nav-dropdown {
+    position: static;
+    transform: none;
+    opacity: 1; visibility: visible; pointer-events: auto;
+    box-shadow: none; border: none; border-bottom: 1px solid var(--line);
+    margin-top: 0; padding: 4px 0 12px;
+  }
+  .nav-dropdown::before { display: none; }
+  .nav-dropdown a { padding: 10px 0 10px 16px; font-size: 0.95rem; }
   .nav-actions { display: none; }
   .nav-toggle { display: block; }
 }
@@ -301,6 +382,7 @@ section { padding: var(--section-pad) 0; }
   border-top: 1px solid var(--line);
   padding-top: 28px;
 }
+.thumb { aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-alt); }
 .card-property .thumb {
   aspect-ratio: 4 / 3;
   overflow: hidden;
@@ -320,6 +402,17 @@ section { padding: var(--section-pad) 0; }
 .gallery-strip .thumb { aspect-ratio: 4/3; overflow: hidden; background: var(--paper-alt); flex: 1; margin-bottom: 0; }
 .gallery-strip .thumb img { transition: transform .6s cubic-bezier(.2,.7,.2,1); }
 .gallery-strip .thumb:hover img { transform: scale(1.05); }
+
+/* Utility modifiers (consolidated from repeated inline styles for a leaner, more consistent markup) */
+.order-1 { order: 1; }
+.order-2 { order: 2; }
+.property-title { margin-top: 14px; font-size: 2.1rem; }
+.property-role { margin-top: 24px; color: var(--ink-soft); font-size: 0.92rem; }
+.stat-row-2 { grid-template-columns: repeat(2, 1fr); margin-top: 32px; }
+.legal-hero { padding-top: 160px; padding-bottom: 40px; }
+.legal-hero h1 { font-size: 2.4rem; margin-top: 14px; }
+.legal-content { padding-top: 0; }
+.footer-bottom--flush { border-top: none; padding-top: 0; }
 
 /* ---------- Lightbox ---------- */
 .lightbox {
