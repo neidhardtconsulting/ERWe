@@ -14,29 +14,20 @@
     });
   }
 
-  // Hero video carousel: crossfade through a sequence of background videos.
-  var heroVideos = document.querySelectorAll('.hero-video-el');
+  // Hero image slideshow: crossfade through a sequence of property photos.
+  var heroSlides = document.querySelectorAll('.hero-slide-el');
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (heroVideos.length > 1 && !reduceMotion) {
+  if (heroSlides.length > 1 && !reduceMotion) {
     var current = 0;
     var DWELL_MS = 7000;
     var timer = null;
 
     function goTo(nextIndex) {
-      var prev = heroVideos[current];
-      var next = heroVideos[nextIndex];
+      var prev = heroSlides[current];
+      var next = heroSlides[nextIndex];
 
-      next.currentTime = 0;
-      next.preload = 'auto';
-      var playPromise = next.play();
-      if (playPromise && playPromise.catch) { playPromise.catch(function () {}); }
       next.classList.add('is-active');
-
       prev.classList.remove('is-active');
-      window.setTimeout(function () {
-        prev.pause();
-        prev.preload = 'none';
-      }, 1500);
 
       current = nextIndex;
       scheduleNext();
@@ -45,15 +36,15 @@
     function scheduleNext() {
       window.clearTimeout(timer);
       timer = window.setTimeout(function () {
-        goTo((current + 1) % heroVideos.length);
+        goTo((current + 1) % heroSlides.length);
       }, DWELL_MS);
     }
 
     scheduleNext();
-  } else if (heroVideos.length) {
+  } else if (heroSlides.length) {
     // Reduced motion / no JS carousel: keep a single static frame visible.
-    heroVideos.forEach(function (v, i) {
-      if (i === 0) { v.pause(); } else { v.remove(); }
+    heroSlides.forEach(function (v, i) {
+      if (i !== 0) { v.remove(); }
     });
   }
 
