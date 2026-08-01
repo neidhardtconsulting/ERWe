@@ -462,20 +462,50 @@ section { padding: var(--section-pad) 0; }
 }
 .card-property .stats strong { color: var(--ink); font-weight: 600; display: block; font-size: 1.05rem; }
 
-/* ---------- Quote / Leitsatz ---------- */
+/* ---------- Quote / Leitsatz — floating card ---------- */
+.quote-section {
+  background: radial-gradient(120% 160% at 50% 0%, var(--navy-soft) 0%, var(--navy) 62%);
+  perspective: 1800px;
+}
 .quote-block {
-  max-width: 900px;
+  max-width: 860px;
   margin: 0 auto;
   text-align: center;
+}
+.quote-card {
+  background: #fff;
+  color: var(--ink);
+  border-radius: 28px;
+  padding: clamp(48px, 6vw, 80px) clamp(32px, 6vw, 76px);
+  box-shadow:
+    0 60px 100px -30px rgba(0, 0, 0, 0.55),
+    0 20px 40px -18px rgba(0, 0, 0, 0.35),
+    0 2px 0 rgba(255, 255, 255, 0.5) inset;
+  transform: rotateX(4deg) translateY(0);
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(.22, 1, .36, 1), box-shadow 0.6s ease;
+  will-change: transform;
+}
+.quote-card:hover {
+  transform: rotateX(0deg) translateY(-12px);
+  box-shadow:
+    0 75px 130px -30px rgba(0, 0, 0, 0.6),
+    0 25px 50px -18px rgba(0, 0, 0, 0.4),
+    0 2px 0 rgba(255, 255, 255, 0.5) inset;
 }
 .quote-block blockquote {
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(1.6rem, 3.2vw, 2.5rem);
-  line-height: 1.35;
-  margin: 0 0 32px;
+  color: var(--ink);
+  font-size: clamp(1.5rem, 3vw, 2.3rem);
+  line-height: 1.4;
+  margin: 0 0 30px;
 }
 .quote-mark { font-family: var(--serif); font-size: 4rem; color: var(--cobalt); line-height: 1; display: block; margin-bottom: 8px; }
+@media (max-width: 640px) {
+  .quote-card { transform: none; }
+  .quote-card:hover { transform: translateY(-6px); }
+}
 
 /* ---------- Stats row ---------- */
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
