@@ -474,13 +474,28 @@ section { padding: var(--section-pad) 0; }
   inset: 0;
   background: url('../img/quote-frankfurt.jpg') center 15%/cover no-repeat;
 }
+.quote-section-bg.reveal {
+  opacity: 0;
+  transform: scale(1.08);
+  transition: opacity 1.1s ease, transform 1.6s ease;
+}
+.quote-section-bg.reveal.is-visible { opacity: 1; transform: scale(1); }
 .quote-section-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(11,27,46,0.72) 0%, rgba(11,27,46,0.58) 45%, rgba(11,27,46,0.8) 100%);
+  background:
+    linear-gradient(90deg, rgba(11,27,46,0.82) 0%, rgba(11,27,46,0.5) 42%, rgba(11,27,46,0.22) 68%, rgba(11,27,46,0.28) 100%),
+    linear-gradient(180deg, rgba(11,27,46,0.55) 0%, rgba(11,27,46,0.3) 45%, rgba(11,27,46,0.6) 100%);
 }
 .quote-section .container { position: relative; z-index: 2; }
+.quote-section .quote-block {
+  max-width: 640px;
+  margin: 0;
+  text-align: left;
+}
+.quote-section .quote-block.reveal { transition-delay: .45s; }
+.quote-section .quote-block .eyebrow { justify-content: flex-start; margin-bottom: 22px; }
 .quote-block {
   max-width: 900px;
   margin: 0 auto;
