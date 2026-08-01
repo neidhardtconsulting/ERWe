@@ -15,9 +15,11 @@
   }
 
   // Hero image slideshow: crossfade through a sequence of property photos.
+  // Runs regardless of prefers-reduced-motion — a slow 7s image crossfade
+  // is not the kind of abrupt motion that setting is meant to suppress,
+  // and the hero is meant to always cycle through the images.
   var heroSlides = document.querySelectorAll('.hero-slide-el');
-  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (heroSlides.length > 1 && !reduceMotion) {
+  if (heroSlides.length > 1) {
     var current = 0;
     var DWELL_MS = 7000;
     var timer = null;
@@ -41,11 +43,6 @@
     }
 
     scheduleNext();
-  } else if (heroSlides.length) {
-    // Reduced motion / no JS carousel: keep a single static frame visible.
-    heroSlides.forEach(function (v, i) {
-      if (i !== 0) { v.remove(); }
-    });
   }
 
   var lightbox = document.createElement('div');
