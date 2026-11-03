@@ -276,6 +276,19 @@
                         "zeit-ausfall-kind", "geld-abrechnung",
                         "einsatz-aufgaben", "vertrag-ansprechpartner"];
 
+  /* Einstiegsvorschläge unter der Eingabe: bewusst kurze Beschriftungen,
+     damit vier Stück nebeneinander lesbar bleiben. */
+  Engine.STARTVORSCHLAEGE = [
+    { id: "abwesenheit-krank", label: "Ich bin krank" },
+    { id: "zeit-erfassen",     label: "Stunden eintragen" },
+    { id: "urlaub-antrag",     label: "Urlaub beantragen" },
+    { id: "zeit-ausfall-kind", label: "Kind fehlt heute" }
+  ];
+
+  Engine.prototype.startVorschlaege = function () {
+    return Engine.STARTVORSCHLAEGE.filter((v) => this.nachId[v.id]);
+  };
+
   Engine.prototype.beliebteThemen = function (anzahl) {
     return Engine.STARTFRAGEN.map((id) => this.nachId[id]).filter(Boolean)
       .slice(0, anzahl || 6).map((e) => ({ id: e.id, frage: e.frage }));

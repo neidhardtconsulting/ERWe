@@ -7,6 +7,21 @@ Zeiterfassung, Krankmeldung, Urlaub, Schulalltag, Gehalt, Pflichten.
 Reines HTML/CSS/JS ohne Build-Schritt. Läuft offline, auf dem Handy wie am
 Rechner, und lässt sich als App auf den Startbildschirm legen.
 
+## Bedienung
+
+Aufgebaut wie ein gewohnter Chat-Assistent — man kann sofort lostippen:
+
+- **Leerzustand:** Eingabefeld mittig auf dem Schirm, darunter vier
+  Einstiegsvorschläge („Ich bin krank“, „Stunden eintragen“ …). Keine
+  Startseite, die erst weggeklickt werden muss.
+- **Nach der ersten Frage:** Die Eingabe dockt unten an, der Verlauf füllt den
+  Schirm. Frage rechts als Blase, Antwort links mit Signet — ohne Kartenrahmen,
+  damit lange Antworten ruhig lesbar bleiben.
+- **Seitenleiste (☰ links oben):** alle 58 Fragen nach Bereichen sortiert,
+  mit Suchfeld.
+- **Stift-Symbol rechts oben:** neues Gespräch. Der Verlauf bleibt sonst
+  erhalten, auch nach dem Schließen der App.
+
 ---
 
 ## Der wichtigste Grundsatz
@@ -60,9 +75,15 @@ Die Farben sind vom Webauftritt therapon24.de abgeleitet und stehen
 Liegen exakte Hex-Codes aus dem CI-Handbuch vor, nur diese Werte ersetzen —
 die gesamte App zieht automatisch nach, inklusive Dunkelmodus.
 
-`img/logo.svg` und `img/logo-dark.svg` sind **nachgebaute Platzhalter**. Sobald
-die Original-SVG vorliegt, beide Dateien ersetzen (die `-dark`-Variante braucht
-eine helle Wortmarke, sonst ist sie im Dunkelmodus nicht lesbar).
+Die Bilddateien sind **nachgebaute Platzhalter** und beim Vorliegen der
+Original-SVG zu ersetzen:
+
+| Datei | Verwendung |
+|---|---|
+| `img/logo.svg` | Wortmarke in der Kopfzeile (heller Modus) |
+| `img/logo-dark.svg` | dieselbe Wortmarke in Hell — sonst im Dunkelmodus unlesbar |
+| `img/mark.svg` | Signet ohne Schrift: Startbildschirm und neben jeder Antwort |
+| `img/icon.svg` | App-Symbol für den Startbildschirm des Handys |
 
 ### 3. Veröffentlichen
 
@@ -93,7 +114,7 @@ therapon24-assistent/
 ├── api/chat.js             Optionaler KI-Endpunkt (Claude API)
 ├── test/engine.test.js     50 Testfälle für die Trefferqualität
 ├── sw.js                   Offlinefähigkeit
-└── img/                    Logo und App-Icon (Platzhalter)
+└── img/                    Logo, Signet, App-Icon (Platzhalter)
 ```
 
 ---
@@ -121,7 +142,9 @@ therapon24-assistent/
 ```
 
 - `{{pfad.aus.config}}` wird zur Laufzeit ersetzt; fehlt der Wert, erscheint
-  der gelbe Hinweis.
+  der gelbe Hinweis. **Platzhalter ans Satzende setzen**, nicht mitten in einen
+  Satz — sonst zerreißt der Marker den Lesefluss. Mehrere Angaben mit „ · “
+  trennen statt mit Punkt.
 - `**Text**` wird fett dargestellt.
 - Nach jeder Änderung `npm test` ausführen — die Testfälle decken auf, wenn ein
   neuer Eintrag einen bestehenden verdrängt.

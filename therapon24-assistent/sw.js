@@ -20,6 +20,7 @@ const DATEIEN = [
   "./js/app.js",
   "./img/logo.svg",
   "./img/logo-dark.svg",
+  "./img/mark.svg",
   "./img/icon.svg",
   "./manifest.webmanifest"
 ];

@@ -45,12 +45,12 @@ window.T24_WISSEN = [
               "wo trage ich meine arbeitszeit ein"],
   schlagworte: ["zeiterfassung", "stunden", "stundenzettel", "eintragen",
                 "erfassen", "arbeitszeit", "zeitnachweis", "zeitkonto"],
-  kurz: "Die Arbeitszeit wird über {{zeiterfassung.tool}} erfasst — und zwar taggleich, nicht rückwirkend am Monatsende.",
+  kurz: "Die Arbeitszeit wird taggleich erfasst, nicht rückwirkend am Monatsende · System: {{zeiterfassung.tool}}",
   schritte: [
     "Beginn und Ende des Einsatzes eintragen, einschließlich aller Pausen.",
     "Fahrzeiten, Vor- und Nachbereitung sowie Besprechungen getrennt ausweisen.",
     "Eintrag am selben Tag abschließen — das ist gesetzlich vorgeschrieben und erspart Rückfragen.",
-    "Am Monatsende den Nachweis prüfen und {{zeiterfassung.abgabefrist}} einreichen."
+    "Am Monatsende den Nachweis prüfen und einreichen — Frist: {{zeiterfassung.abgabefrist}}"
   ],
   hinweise: [
     { ton: "info", text: "Direktlink zum System: {{zeiterfassung.toolLink}}" },
@@ -70,7 +70,7 @@ window.T24_WISSEN = [
                 "nachträglich", "fehler", "falsch"],
   kurz: "Nachtragen ist möglich — aber zeitnah und mit kurzer Begründung. Je früher, desto unkomplizierter.",
   schritte: [
-    "Den fehlenden Tag so schnell wie möglich in {{zeiterfassung.tool}} nachtragen.",
+    "Den fehlenden Tag so schnell wie möglich nachtragen — im System {{zeiterfassung.tool}}",
     "Im Bemerkungsfeld kurz vermerken, warum der Eintrag nachträglich erfolgt.",
     "Die Einsatzleitung kurz informieren, damit die Korrektur freigegeben wird.",
     "Liegt der Monat bereits abgerechnet vor, läuft die Korrektur über die Lohnbuchhaltung."
@@ -89,7 +89,7 @@ window.T24_WISSEN = [
               "deadline zeiterfassung", "stundenzettel abgeben wann"],
   schlagworte: ["frist", "abgabe", "deadline", "monatsende", "abgeben",
                 "einreichen", "termin"],
-  kurz: "Der Nachweis muss {{zeiterfassung.abgabefrist}} vorliegen, damit die Abrechnung im laufenden Zyklus erfolgen kann.",
+  kurz: "Der Nachweis muss rechtzeitig vorliegen, damit die Abrechnung im laufenden Zyklus erfolgt · Frist: {{zeiterfassung.abgabefrist}}",
   hinweise: [
     { ton: "warn", text: "Verspätete Nachweise können dazu führen, dass Stunden erst im Folgemonat ausgezahlt werden." }
   ],
@@ -223,12 +223,12 @@ window.T24_WISSEN = [
               "ich kann nicht arbeiten"],
   schlagworte: ["krank", "krankmeldung", "krankheit", "erkrankt",
                 "arbeitsunfähig", "fieber", "grippe", "erkältung", "abmelden"],
-  kurz: "Melde dich so früh wie möglich — {{krankmeldung.uhrzeit}} — direkt {{krankmeldung.meldewegPrimaer}}. Die Schule informierst du nicht selbst.",
+  kurz: "Melde dich so früh wie möglich bei der Einsatzleitung — die Schule informierst du **nicht** selbst. Zeitpunkt: {{krankmeldung.uhrzeit}} · Meldeweg: {{krankmeldung.meldewegPrimaer}}",
   schritte: [
     "Einsatzleitung informieren, sobald absehbar ist, dass du ausfällst.",
     "Mitteilen: Name, Einsatzort, voraussichtliche Dauer des Ausfalls.",
-    "{{krankmeldung.schuleInfo}}",
-    "Ärztliche Bescheinigung {{krankmeldung.auAbTag}} besorgen.",
+    "Nicht selbst in der Schule anrufen — das übernimmt Therapon24: {{krankmeldung.schuleInfo}}",
+    "Ärztliche Bescheinigung besorgen — erforderlich {{krankmeldung.auAbTag}}",
     "Bei Verlängerung erneut melden — eine Folgebescheinigung muss lückenlos anschließen."
   ],
   hinweise: [
@@ -387,7 +387,7 @@ window.T24_WISSEN = [
               "wie bekomme ich urlaub", "urlaub einreichen"],
   schlagworte: ["urlaub", "antrag", "beantragen", "frei", "freinehmen",
                 "urlaubsantrag"],
-  kurz: "Urlaub wird {{urlaub.antragsweg}} beantragt — bitte {{urlaub.vorlauf}}.",
+  kurz: "Urlaub wird schriftlich beantragt und gilt erst nach Genehmigung. Antragsweg: {{urlaub.antragsweg}} · Vorlauf: {{urlaub.vorlauf}}",
   schritte: [
     "Wunschzeitraum eintragen und Antrag einreichen.",
     "Die Einsatzleitung prüft, ob die Begleitung des Kindes gesichert ist.",
@@ -407,7 +407,7 @@ window.T24_WISSEN = [
               "wie viele tage urlaub", "resturlaub wie viel"],
   schlagworte: ["urlaubstage", "anspruch", "wieviel", "tage", "jahresurlaub",
                 "kontingent"],
-  kurz: "Dein Anspruch beträgt {{urlaub.anspruch}}. Den aktuellen Stand siehst du in {{links.mitarbeiterportal}}",
+  kurz: "Dein Anspruch: {{urlaub.anspruch}} · Aktueller Stand im Mitarbeiterportal: {{links.mitarbeiterportal}}",
   hinweise: [
     { ton: "info", text: "Gesetzlicher Mindesturlaub nach Bundesurlaubsgesetz: 24 Werktage bei einer 6-Tage-Woche, also 20 Tage bei einer 5-Tage-Woche. Bei Teilzeit mit weniger Arbeitstagen pro Woche verringert sich die Zahl der Urlaubstage entsprechend anteilig — der Erholungsumfang bleibt gleich." }
   ],
@@ -496,7 +496,7 @@ window.T24_WISSEN = [
               "wann kommt das geld", "auszahlung gehalt"],
   schlagworte: ["gehalt", "lohn", "zahltag", "auszahlung", "überweisung",
                 "eingang", "wann"],
-  kurz: "Die Auszahlung erfolgt {{entgelt.zahltag}}.",
+  kurz: "Auszahlung: {{entgelt.zahltag}}",
   hinweise: [
     { ton: "info", text: "Fällt der Zahltag auf ein Wochenende oder einen Feiertag, kann der Eingang je nach Bank einen Werktag später erfolgen." }
   ],
@@ -511,7 +511,7 @@ window.T24_WISSEN = [
               "abrechnung herunterladen", "verdienstbescheinigung"],
   schlagworte: ["abrechnung", "lohnzettel", "gehaltsabrechnung",
                 "entgeltabrechnung", "pdf", "download"],
-  kurz: "Die Abrechnungen liegen in {{entgelt.abrechnungPortal}} bereit: {{entgelt.abrechnungLink}}",
+  kurz: "Die Abrechnungen stehen digital zum Abruf bereit. Portal: {{entgelt.abrechnungPortal}} · Link: {{entgelt.abrechnungLink}}",
   hinweise: [
     { ton: "info", text: "Lade dir die Abrechnungen regelmäßig herunter und speichere sie. Für Anträge bei Behörden, Banken oder Vermietern brauchst du sie oft kurzfristig." }
   ],
@@ -594,7 +594,7 @@ window.T24_WISSEN = [
                 "umzug", "name", "stammdaten", "ändern"],
   kurz: "Stammdatenänderungen bitte schriftlich an die Personalabteilung — und zwar vor dem Abrechnungslauf des betreffenden Monats.",
   schritte: [
-    "Änderung per E-Mail oder über {{links.mitarbeiterportal}} melden.",
+    "Änderung schriftlich melden — per E-Mail oder über {{links.mitarbeiterportal}}",
     "Bei Bankverbindung: IBAN vollständig und auf den eigenen Namen angeben.",
     "Bei Steuerklasse: Die Änderung erfolgt beim Finanzamt — der Arbeitgeber ruft sie elektronisch ab (ELStAM).",
     "Bei Umzug zusätzlich die Einsatzleitung informieren, falls sich die Anfahrt ändert."
@@ -1016,7 +1016,7 @@ window.T24_WISSEN = [
               "qualifizierung", "seminar"],
   schlagworte: ["fortbildung", "weiterbildung", "schulung", "seminar",
                 "kurs", "qualifikation", "bildungsurlaub"],
-  kurz: "Ja. Das Fortbildungsangebot findest du unter {{links.fortbildungen}} — Teilnahme nach Absprache mit der Einsatzleitung.",
+  kurz: "Ja. Die Teilnahme wird mit der Einsatzleitung abgestimmt · Angebot: {{links.fortbildungen}}",
   schritte: [
     "Wunschfortbildung auswählen und Termin prüfen.",
     "Freigabe bei der Einsatzleitung einholen, damit die Vertretung geplant werden kann.",

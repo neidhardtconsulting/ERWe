@@ -10,7 +10,12 @@
     window.T24_WISSEN, window.T24_KATEGORIEN, CONFIG);
 
   const $ = (sel) => document.querySelector(sel);
+  const app        = $("#app");
   const verlauf    = $("#verlauf");
+  const buehne     = $("#buehne");
+  const buehnenSlot = $("#buehnenSlot");
+  const dock       = $("#dock");
+  const vorschlaege = $("#vorschlaege");
   const formular   = $("#formular");
   const feld       = $("#feld");
   const btnSenden  = $("#btnSenden");
@@ -80,8 +85,9 @@
       } else if (treffer[2] !== undefined) {
         const chip = el("span", "fehlt");
         chip.appendChild(ikon("warn", "2"));
-        chip.appendChild(document.createTextNode("noch zu ergänzen: " + treffer[2]));
-        chip.title = "Diese Angabe ist in js/config.js noch nicht hinterlegt.";
+        chip.appendChild(document.createTextNode("noch offen: " + treffer[2]));
+        chip.title = "Diese Angabe ist bei Therapon24 noch nicht hinterlegt " +
+                     "(js/config.js). Bitte bei der Ansprechperson nachfragen.";
         ziel.appendChild(chip);
       } else {
         const a = el("a", null, treffer[3]);
@@ -102,19 +108,43 @@
 
   function frageAnzeigen(text) {
     const blase = el("div", "blase blase--ich");
-    blase.appendChild(el("div", "text", text));
+    const mitte = el("div", "mitte");
+    mitte.appendChild(el("div", "text", text));
+    blase.appendChild(mitte);
     verlauf.appendChild(blase);
     runter();
   }
+
+  /* Antwortblase: Hülle mit Mittelachse, damit alles auf einer Linie liegt. */
+  function antwortBlase(karte) {
+    const blase = el("div", "blase");
+    const mitte = el("div", "mitte");
+    mitte.appendChild(karte);
+    blase.appendChild(mitte);
+    return blase;
+  }
+
+  /* Inhalte gehören neben das Signet, nicht in die Flex-Hülle. */
+  function leibVon(karte) { return karte.querySelector(".antwort__leib") || karte; }
 
   /* ---------- Darstellung: Antwortkarte ----------------------------------- */
 
   function antwortKarte(e, status) {
     const karte = el("article", "antwort");
 
+    const signet = document.createElement("img");
+    signet.className = "antwort__signet";
+    signet.src = "img/mark.svg";
+    signet.alt = "";
+    signet.setAttribute("aria-hidden", "true");
+    karte.appendChild(signet);
+
+    const leib = el("div", "antwort__leib");
+    karte.appendChild(leib);
+
     /* Kopf: Thema + Kennzeichnungen */
     const kopf = el("div", "antwort__kopf");
-    kopf.appendChild(el("h3", "antwort__titel", e.frage));
+    if (e.frage) kopf.appendChild(el("h3", "antwort__titel", e.frage));
     if (e.kategorieLabel) kopf.appendChild(el("span", "marke", e.kategorieLabel));
     if (e.rechtlich) {
       const m = el("span", "marke marke--gesetz", "Allgemeine Rechtslage");
@@ -125,16 +155,16 @@
     if (status === "unsicher") {
       kopf.appendChild(el("span", "marke marke--unsicher", "Passt das?"));
     }
-    karte.appendChild(kopf);
+    if (kopf.childNodes.length) leib.appendChild(kopf);
 
     /* Kernantwort */
-    karte.appendChild(textKnoten(el("p", "antwort__kurz"), e.kurz));
+    leib.appendChild(textKnoten(el("p", "antwort__kurz"), e.kurz));
 
     /* Schritte */
     if (e.schritte && e.schritte.length) {
       const ol = el("ol", "schritte");
       e.schritte.forEach((s) => ol.appendChild(textKnoten(el("li"), s)));
-      karte.appendChild(ol);
+      leib.appendChild(ol);
     }
 
     /* Hinweise */
@@ -143,11 +173,11 @@
       const name = { info: "info", ok: "ok", warn: "warn", urgent: "urgent" }[h.ton] || "info";
       box.appendChild(ikon(name, "1.9"));
       box.appendChild(textKnoten(el("div"), h.text));
-      karte.appendChild(box);
+      leib.appendChild(box);
     });
 
     /* Ansprechpartner */
-    if (e.kontakt) karte.appendChild(kontaktKarte(e.kontakt));
+    if (e.kontakt) leib.appendChild(kontaktKarte(e.kontakt));
 
     /* Folgefragen */
     return karte;
@@ -165,7 +195,7 @@
       const chip = el("span", "fehlt");
       chip.appendChild(ikon("warn", "2"));
       chip.appendChild(document.createTextNode(
-        "noch zu ergänzen: Telefon und E-Mail für „" + k.label + "“"));
+        "noch offen: Telefon und E-Mail für „" + k.label + "“"));
       fehlt.appendChild(chip);
       box.appendChild(fehlt);
       return box;
@@ -254,39 +284,40 @@
   /* ---------- Antwort ausgeben -------------------------------------------- */
 
   function antwortAnzeigen(ergebnis, frageText) {
-    const blase = el("div", "blase");
+    let karte;
 
     if (ergebnis.status === "unbekannt") {
       lueckeMerken(frageText);
-      const karte = el("article", "antwort");
-      karte.appendChild(textKnoten(el("p", "antwort__kurz"),
-        "Dazu habe ich **nichts Verlässliches hinterlegt** — und ich rate hier " +
-        "lieber nicht. Frag bitte direkt bei deiner Ansprechperson nach."));
+      karte = antwortKarte({
+        frage: "", kurz:
+          "Dazu habe ich **nichts Verlässliches hinterlegt** — und ich rate hier " +
+          "lieber nicht. Frag bitte direkt bei deiner Ansprechperson nach.",
+        kontakt: null
+      }, "treffer");
+      const leib = leibVon(karte);
       const k = (CONFIG.kontakt || {}).einsatzleitung;
-      if (k) karte.appendChild(kontaktKarte({
+      if (k) leib.appendChild(kontaktKarte({
         label: k.label || "Einsatzleitung", name: k.name || "",
         tel: k.tel || "", mail: k.mail || "", zeiten: k.zeiten || ""
       }));
       const f = folgefragen("Häufig gefragt", ergebnis.vorschlaege);
-      if (f) karte.appendChild(f);
-      blase.appendChild(karte);
+      if (f) leib.appendChild(f);
     } else {
-      const karte = antwortKarte(ergebnis.eintrag, ergebnis.status);
+      karte = antwortKarte(ergebnis.eintrag, ergebnis.status);
+      const leib = leibVon(karte);
 
       if (ergebnis.status === "unsicher" && ergebnis.alternativen.length) {
         const alt = folgefragen("Oder meintest du …", ergebnis.alternativen);
-        if (alt) karte.appendChild(alt);
+        if (alt) leib.appendChild(alt);
       }
       const f = folgefragen("Passt dazu", ergebnis.vorschlaege);
-      if (f) karte.appendChild(f);
+      if (f) leib.appendChild(f);
 
       const b = bewertungsZeile(ergebnis.eintrag.id, frageText);
-      if (b) karte.appendChild(b);
-
-      blase.appendChild(karte);
+      if (b) leib.appendChild(b);
     }
 
-    verlauf.appendChild(blase);
+    verlauf.appendChild(antwortBlase(karte));
     runter();
   }
 
@@ -299,9 +330,11 @@
   function tipptAnzeigen() {
     const blase = el("div", "blase");
     blase.id = "tippt";
+    const mitte = el("div", "mitte");
     const box = el("div", "tippt");
     box.appendChild(el("span")); box.appendChild(el("span")); box.appendChild(el("span"));
-    blase.appendChild(box);
+    mitte.appendChild(box);
+    blase.appendChild(mitte);
     verlauf.appendChild(blase);
     runter();
   }
@@ -319,7 +352,7 @@
     if (!text || laeuft) return;
     laeuft = true;
 
-    startAusblenden();
+    chatzustand();
     frageAnzeigen(text);
     verlaufMerken({ rolle: "ich", text: text });
 
@@ -400,96 +433,72 @@
     const e = engine.eintragNachId(id);
     if (!e) return;
     schubladeSchliessen();
-    startAusblenden();
+    chatzustand();
     frageAnzeigen(e.frage);
     verlaufMerken({ rolle: "ich", text: e.frage });
 
     const karte = antwortKarte(e, "treffer");
+    const leib = leibVon(karte);
     const verwandte = (window.T24_WISSEN.find((x) => x.id === id) || {}).verwandt || [];
     const f = folgefragen("Passt dazu", verwandte
       .map((vid) => window.T24_WISSEN.find((x) => x.id === vid))
       .filter(Boolean).map((x) => ({ id: x.id, frage: x.frage })));
-    if (f) karte.appendChild(f);
+    if (f) leib.appendChild(f);
     const b = bewertungsZeile(e.id, e.frage);
-    if (b) karte.appendChild(b);
+    if (b) leib.appendChild(b);
 
-    const blase = el("div", "blase");
-    blase.appendChild(karte);
-    verlauf.appendChild(blase);
+    verlauf.appendChild(antwortBlase(karte));
     verlaufMerken({ rolle: "bot", frage: e.frage, id: e.id, status: "treffer" });
     runter();
   }
 
-  /* ---------- Startbildschirm ---------------------------------------------- */
+  /* ---------- Zustände: leer <-> Chat --------------------------------------
+     Im Leerzustand sitzt die Eingabe mittig auf der Bühne, im Chatzustand
+     dockt sie unten an. Dafür wandert dasselbe Element zwischen beiden
+     Plätzen - so bleiben Inhalt, Fokus und Ereignisse erhalten.           */
 
-  function startAnzeigen() {
-    const start = el("div", "start");
-    start.id = "start";
-
-    /* Hinweis, solange die Konfiguration noch nicht gefüllt ist */
-    const offen = engine.offenePlatzhalter();
-    const ohneKontakt = !Object.values(CONFIG.kontakt || {})
-      .some((k) => k && (k.tel || k.mail));
-    if (offen.length || ohneKontakt) {
-      const box = el("div", "setup");
-      box.appendChild(el("b", null, "Einrichtung noch nicht abgeschlossen"));
-      box.appendChild(document.createTextNode(
-        offen.length + " firmenspezifische Angabe" + (offen.length === 1 ? "" : "n") +
-        (ohneKontakt ? " und die Kontaktdaten" : "") +
-        " fehlen noch in js/config.js. Die betroffenen Stellen sind in den " +
-        "Antworten gelb markiert — erfunden wird nichts."));
-      start.appendChild(box);
-    }
-
-    const gruss = el("div", "start__gruss");
-    gruss.appendChild(el("h2", null, "Moin! Wie kann ich helfen?"));
-    gruss.appendChild(el("span", "start__strich"));
-    const p = el("p");
-    p.style.marginTop = "11px";
-    p.textContent = CONFIG.claim ||
-      "Stell deine Frage in eigenen Worten — oder wähle unten ein Thema.";
-    gruss.appendChild(p);
-    start.appendChild(gruss);
-
-    /* Häufige Fragen */
-    const b1 = el("div", "start__block");
-    b1.appendChild(el("div", "abschnitt__titel", "Häufig gefragt"));
-    const chips = el("div", "chips");
-    engine.beliebteThemen(6).forEach((v) => {
-      const b = el("button", "chip chip--voll", v.frage);
-      b.type = "button";
-      b.addEventListener("click", () => themaOeffnen(v.id));
-      chips.appendChild(b);
-    });
-    b1.appendChild(chips);
-    start.appendChild(b1);
-
-    /* Kategorien */
-    const b2 = el("div", "start__block");
-    b2.appendChild(el("div", "abschnitt__titel", "Alle Bereiche"));
-    const grid = el("div", "kacheln");
-    (window.T24_KATEGORIEN || []).forEach((kat) => {
-      const anzahl = engine.nachKategorie(kat.id).length;
-      const b = el("button", "kachel");
-      b.type = "button";
-      const ikonBox = el("div", "kachel__ikon");
-      ikonBox.appendChild(ikon(kat.icon, "1.8"));
-      b.appendChild(ikonBox);
-      b.appendChild(el("div", "kachel__label", kat.label));
-      b.appendChild(el("div", "kachel__anz",
-        anzahl + (anzahl === 1 ? " Frage" : " Fragen")));
-      b.addEventListener("click", () => { schubladeOeffnen(); kategorieFiltern(kat.id); });
-      grid.appendChild(b);
-    });
-    b2.appendChild(grid);
-    start.appendChild(b2);
-
-    verlauf.appendChild(start);
+  function leerzustand() {
+    app.setAttribute("data-zustand", "leer");
+    buehnenSlot.appendChild(dock);
+    vorschlaegeRendern();
   }
 
-  function startAusblenden() {
-    const s = document.getElementById("start");
-    if (s) s.remove();
+  function chatzustand() {
+    if (app.getAttribute("data-zustand") === "chat") return;
+    app.setAttribute("data-zustand", "chat");
+    app.appendChild(dock);
+  }
+
+  /* Vier Einstiegsfragen unter der Eingabe. */
+  function vorschlaegeRendern() {
+    vorschlaege.textContent = "";
+    engine.startVorschlaege().forEach((v) => {
+      const b = el("button", "vorschlag", v.label);
+      b.type = "button";
+      b.addEventListener("click", () => themaOeffnen(v.id));
+      vorschlaege.appendChild(b);
+    });
+  }
+
+  /* Einrichtungshinweis gehört nicht in den Chat, sondern in die
+     Seitenleiste - die Mitarbeitenden sollen nicht damit anfangen. */
+  function setupHinweisRendern() {
+    const ziel = $("#setupHinweis");
+    if (!ziel) return;
+    const offen = engine.offenePlatzhalter().length;
+    const ohneKontakt = !Object.values(CONFIG.kontakt || {})
+      .some((k) => k && (k.tel || k.mail));
+    if (!offen && !ohneKontakt) return;
+
+    const box = el("div", "setup");
+    box.appendChild(el("b", null, "Einrichtung offen"));
+    box.appendChild(document.createTextNode(
+      offen + " firmenspezifische Angabe" + (offen === 1 ? "" : "n") +
+      (ohneKontakt ? " und die Kontaktdaten" : "") + " fehlen noch. "));
+    const a = el("a", null, "Jetzt pflegen");
+    a.href = "admin.html";
+    box.appendChild(a);
+    ziel.appendChild(box);
   }
 
   /* ---------- Themen-Schublade --------------------------------------------- */
@@ -519,7 +528,10 @@
       const fragen = engine.nachKategorie(kat.id);
       if (!fragen.length) return;
       const gruppe = el("div", "gruppe");
-      gruppe.appendChild(el("div", "gruppe__titel", kat.label));
+      const titel = el("div", "gruppe__titel");
+      titel.appendChild(ikon(kat.icon, "1.9"));
+      titel.appendChild(document.createTextNode(kat.label));
+      gruppe.appendChild(titel);
       const ul = el("ul", "frageliste");
       fragen.forEach((f) => ul.appendChild(frageZeile(f)));
       gruppe.appendChild(ul);
@@ -584,9 +596,7 @@
       } else if (p.id) {
         const e = engine.eintragNachId(p.id);
         if (!e) return;
-        const blase = el("div", "blase");
-        blase.appendChild(antwortKarte(e, p.status || "treffer"));
-        verlauf.appendChild(blase);
+        verlauf.appendChild(antwortBlase(antwortKarte(e, p.status || "treffer")));
       }
     });
     return true;
@@ -595,7 +605,7 @@
   function verlaufLeeren() {
     speicher.loeschen(SPEICHER_VERLAUF);
     verlauf.textContent = "";
-    startAnzeigen();
+    leerzustand();
     feld.focus();
   }
 
@@ -681,7 +691,9 @@
 
   /* Nur bei wiederhergestelltem Verlauf ans Ende springen -
      der Startbildschirm beginnt oben. */
-  if (verlaufHerstellen()) runter(); else startAnzeigen();
+  if (verlaufHerstellen()) chatzustand(); else leerzustand();
+  setupHinweisRendern();
+  if (app.getAttribute("data-zustand") === "chat") runter();
 
   if (window.matchMedia("(min-width: 720px)").matches) feld.focus();
 
