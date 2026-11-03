@@ -69,6 +69,9 @@
   /* ---------- LAYOUT ------------------------------------------------------ */
   --t24-header-h: 60px;
   --t24-max: 860px;
+
+  /* Damit Bildlaufleisten, Cursor und Formularfelder zum Thema passen */
+  color-scheme: light;
 }
 
 /* ===========================================================================
@@ -77,6 +80,7 @@
    =========================================================================== */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --t24-blue:         #8BA6D6;
     --t24-blue-dark:    #7390C4;
     --t24-blue-darker:  #C3D3EE;
@@ -112,6 +116,7 @@
 }
 
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --t24-blue:         #8BA6D6;
   --t24-blue-dark:    #7390C4;
   --t24-blue-darker:  #C3D3EE;

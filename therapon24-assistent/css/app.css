@@ -9,6 +9,11 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Manche Einbettungen geben dem Wurzelelement eigene Abstände für die
+   Safe Area. Die App regelt die Safe Area selbst (siehe .dock) — sonst wird
+   die Seite höher als der Bildschirm und bekommt eine zweite Bildlaufleiste. */
+html { padding: 0 !important; }
+
 html, body { margin: 0; padding: 0; height: 100%; background: var(--t24-bg); }
 
 body {
