@@ -236,6 +236,12 @@ Umgesetzt mit der Spracherkennung des Browsers (Web Speech API) in
 | Firefox | nicht unterstützt — der Knopf bleibt verborgen, Tippen geht weiter |
 | Nur über HTTPS | über `http://` bietet der Browser kein Mikrofon an |
 | Eingebettet in fremde Seiten | nur wenn der Rahmen `allow="microphone"` setzt |
+| Serverseitige Richtlinie | `vercel.json` muss `microphone=(self)` senden |
+
+Achtung bei der `Permissions-Policy` in `vercel.json`: `microphone=()` sperrt
+das Mikrofon **auch für die eigene Seite**. Das fällt lokal nicht auf, weil
+Entwicklungsserver diese Kopfzeile nicht setzen — die App liefe, das Deployment
+nicht. Richtig ist `microphone=(self)`.
 
 `T24Sprache.zustand()` unterscheidet vier Lagen: `ok`, `kein-browser`,
 `unsicher` (kein HTTPS) und `gesperrt` (eingebettet ohne Mikrofon-Freigabe).

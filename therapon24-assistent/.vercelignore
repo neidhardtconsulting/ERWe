@@ -1,0 +1,3 @@
+# Gehört nicht auf den Server — nur in die Entwicklung.
+test/
+DEPLOY.md
