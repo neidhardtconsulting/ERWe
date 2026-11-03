@@ -339,6 +339,46 @@ a { color: var(--t24-primary); text-decoration-thickness: 1px; text-underline-of
 /* Der Rahmen sitzt auf der Hülle - sonst zwei Fokusringe übereinander. */
 .eingabe__feld:focus-visible { box-shadow: none; }
 
+/* Mikrofon: unauffällig neben dem Senden-Knopf, im Betrieb deutlich an */
+.eingabe__mic {
+  flex: 0 0 auto;
+  width: 38px; height: 38px;
+  border: none; border-radius: 50%;
+  background: none;
+  color: var(--t24-ink-faint);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.eingabe__mic:hover { background: var(--t24-line-soft); color: var(--t24-primary); }
+.eingabe__mic svg { width: 19px; height: 19px; }
+.eingabe__mic[hidden] { display: none; }
+
+.eingabe__mic--aktiv,
+.eingabe__mic--aktiv:hover {
+  background: var(--t24-urgent);
+  color: #fff;
+  animation: pulsen 1.6s ease-in-out infinite;
+}
+@keyframes pulsen {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, .45); }
+  50%      { box-shadow: 0 0 0 7px rgba(192, 57, 43, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eingabe__mic--aktiv { animation: none; }
+}
+
+/* Statusmeldung der Spracheingabe */
+.sprachhinweis {
+  margin: 8px 0 0;
+  padding: 0 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--t24-warn);
+  text-align: center;
+}
+.sprachhinweis[hidden] { display: none; }
+
 .eingabe__senden {
   flex: 0 0 auto;
   width: 38px; height: 38px;

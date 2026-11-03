@@ -30,6 +30,9 @@ Aufgebaut wie ein gewohnter Chat-Assistent — man kann sofort lostippen:
   heraus.
 - **Seitenleiste (☰ links oben):** oben die Chats, darunter aufklappbar alle
   58 Fragen nach Bereichen, plus Suchfeld.
+- **Diktieren:** Mikrofonknopf in der Eingabe. Gesprochenes erscheint direkt
+  im Feld — erst beim Tippen auf Senden geht die Frage raus, damit man
+  Erkennungsfehler vorher sieht. Erneutes Antippen beendet das Diktat.
 
 ---
 
@@ -211,11 +214,37 @@ Abschalten: in `js/config.js` `optionen.kiModus` auf `"aus"` setzen.
   lokal** im Browser der jeweiligen Person (`localStorage`) und werden nicht
   übertragen. Für eine zentrale Auswertung wäre ein Backend nötig.
 - Gelöschte Chats sind sofort weg und nicht wiederherstellbar.
+- **Diktat:** Chrome und Safari übertragen das Gesprochene zur Erkennung an
+  ihre eigenen Server. Die Mitarbeitenden sollten deshalb darauf hingewiesen
+  werden, **keine Namen von Kindern oder Familien** zu diktieren — für die
+  Fragen dieser App ist das ohnehin nie nötig.
 - Der Assistent verarbeitet keine Klienten- oder Personaldaten. Die
   Wissensbasis enthält ausschließlich allgemeine Verfahrensinformationen.
 - Ohne KI-Modus verlässt keine einzige Eingabe das Gerät.
 
 ---
+
+## Spracheingabe
+
+Umgesetzt mit der Spracherkennung des Browsers (Web Speech API) in
+`js/sprache.js` — kein Server, kein Schlüssel, keine laufenden Kosten.
+
+| | |
+|---|---|
+| Chrome, Edge, Android Chrome | funktioniert |
+| Safari ab iOS 14.5 | funktioniert |
+| Firefox | nicht unterstützt — der Knopf bleibt verborgen, Tippen geht weiter |
+| Nur über HTTPS | über `http://` bietet der Browser kein Mikrofon an |
+
+**Wichtig für den Store-Weg:** In einer nativen Hülle (Capacitor, WKWebView)
+steht diese Schnittstelle auf **iOS nicht** zur Verfügung. Dort wäre
+`@capacitor-community/speech-recognition` nötig. `js/sprache.js` ist deshalb
+gekapselt und bietet nur `verfuegbar()` und `erstellen()` nach außen — für
+eine native App muss ausschließlich diese Datei ersetzt werden, nicht die
+Anwendung.
+
+Die Erkennung läuft bei Chrome und Safari über die Server des jeweiligen
+Herstellers. Übertragen wird nur das Diktierte.
 
 ## Verteilung an die Mitarbeitenden
 

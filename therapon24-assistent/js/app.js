@@ -17,6 +17,8 @@
   const dock       = $("#dock");
   const vorschlaege = $("#vorschlaege");
   const formular   = $("#formular");
+  const btnMic     = $("#btnMic");
+  const sprachhinweis = $("#sprachhinweis");
   const feld       = $("#feld");
   const btnSenden  = $("#btnSenden");
   const schublade  = $("#schublade");
@@ -787,21 +789,104 @@
     feld.style.height = Math.min(feld.scrollHeight, 120) + "px";
   }
 
+  /* ---------- Spracheingabe (Diktat) ---------------------------------------
+     Der Knopf erscheint nur, wenn der Browser die Spracherkennung auch
+     wirklich anbietet - ein toter Knopf wäre schlimmer als keiner.      */
+
+  let diktat = null;
+  let diktatBasis = "";        // Text, der vor dem Diktieren schon dastand
+
+  function sprachhinweisZeigen(text) {
+    if (!text) {
+      sprachhinweis.hidden = true;
+      sprachhinweis.textContent = "";
+      return;
+    }
+    sprachhinweis.textContent = text;
+    sprachhinweis.hidden = false;
+    clearTimeout(sprachhinweisZeigen.uhr);
+    sprachhinweisZeigen.uhr = setTimeout(() => {
+      sprachhinweis.hidden = true;
+    }, 7000);
+  }
+
+  function feldSetzen(text) {
+    feld.value = text;
+    feldHoeheAnpassen();
+    btnSenden.disabled = !feld.value.trim() || laeuft;
+  }
+
+  function diktatEinrichten() {
+    if (!window.T24Sprache || !window.T24Sprache.verfuegbar()) return;
+
+    diktat = window.T24Sprache.erstellen({
+      sprache: "de-DE",
+
+      /* Noch unsicherer Text: direkt im Feld mitlaufen lassen. */
+      onZwischenstand(text) {
+        feldSetzen(text ? (diktatBasis + (diktatBasis ? " " : "") + text) : diktatBasis);
+      },
+
+      /* Erkannter Satz: fest übernehmen. */
+      onErgebnis(text) {
+        if (!text) return;
+        diktatBasis = (diktatBasis + " " + text).trim();
+        feldSetzen(diktatBasis);
+      },
+
+      onStatus(zustand) {
+        const hoert = zustand === "hoert";
+        btnMic.classList.toggle("eingabe__mic--aktiv", hoert);
+        btnMic.setAttribute("aria-pressed", String(hoert));
+        btnMic.setAttribute("aria-label", hoert ? "Diktat beenden" : "Frage diktieren");
+        btnMic.title = hoert ? "Diktat beenden" : "Frage diktieren";
+        const ikonVerweis = document.getElementById("micIkon");
+        if (ikonVerweis) ikonVerweis.setAttribute("href", hoert ? "#i-mikstop" : "#i-mic");
+        feld.placeholder = hoert ? "Sprich jetzt …" : "Frage eingeben …";
+        if (hoert) sprachhinweisZeigen("");
+      },
+
+      onFehler(meldung) { sprachhinweisZeigen(meldung); }
+    });
+
+    if (!diktat) return;
+    btnMic.hidden = false;
+
+    btnMic.addEventListener("click", () => {
+      if (!diktat.hoert()) diktatBasis = feld.value.trim();
+      diktat.umschalten();
+    });
+  }
+
+  /* Diktat beenden, sobald abgeschickt oder die Seite in den Hintergrund
+     wandert - sonst läuft das Mikrofon unbemerkt weiter. */
+  function diktatBeenden() {
+    if (diktat && diktat.hoert()) diktat.stoppen();
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) diktatBeenden();
+  });
+
   /* ---------- Verdrahtung ---------------------------------------------------- */
 
   formular.addEventListener("submit", (ev) => {
     ev.preventDefault();
+    diktatBeenden();
     fragen(feld.value);
   });
 
   feld.addEventListener("input", () => {
     btnSenden.disabled = !feld.value.trim() || laeuft;
     feldHoeheAnpassen();
+    /* Von Hand geändert: Diktat baut ab jetzt auf dem neuen Text auf. */
+    if (diktat && diktat.hoert()) diktatBasis = feld.value.trim();
   });
 
   feld.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter" && !ev.shiftKey) {
       ev.preventDefault();
+      diktatBeenden();
       fragen(feld.value);
     }
   });
@@ -835,6 +920,7 @@
   themeSetzen(speicher.lesen(SPEICHER_THEME, null));
 
   altbestandUebernehmen();
+  diktatEinrichten();
 
   /* Nur bei wiederhergestelltem Gespräch ans Ende springen -
      der Startbildschirm beginnt oben. */
