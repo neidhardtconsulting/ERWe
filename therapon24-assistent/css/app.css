@@ -378,6 +378,11 @@ a { color: var(--t24-primary); text-decoration-thickness: 1px; text-underline-of
   text-align: center;
 }
 .sprachhinweis[hidden] { display: none; }
+.sprachhinweis svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 3px; }
+.sprachhinweis a { color: inherit; font-weight: 700; }
+/* Dieser Hinweis bleibt stehen, statt nach Sekunden zu verschwinden. */
+.sprachhinweis--dauer { color: var(--t24-ink-faint); }
+.sprachhinweis--dauer a { color: var(--t24-primary); }
 
 .eingabe__senden {
   flex: 0 0 auto;

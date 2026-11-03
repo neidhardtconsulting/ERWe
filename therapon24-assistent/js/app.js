@@ -798,11 +798,13 @@
 
   function sprachhinweisZeigen(text) {
     if (!text) {
+      if (sprachhinweis.classList.contains("sprachhinweis--dauer")) return;
       sprachhinweis.hidden = true;
       sprachhinweis.textContent = "";
       return;
     }
     sprachhinweis.textContent = text;
+    sprachhinweis.classList.remove("sprachhinweis--dauer");
     sprachhinweis.hidden = false;
     clearTimeout(sprachhinweisZeigen.uhr);
     sprachhinweisZeigen.uhr = setTimeout(() => {
@@ -816,8 +818,28 @@
     btnSenden.disabled = !feld.value.trim() || laeuft;
   }
 
+  /* Dauerhafter Hinweis mit Verweis - für den Fall, dass der einbettende
+     Rahmen das Mikrofon nicht durchreicht. */
+  function diktatGesperrtZeigen() {
+    sprachhinweis.textContent = "";
+    sprachhinweis.appendChild(ikon("mic", "1.8"));
+    sprachhinweis.appendChild(document.createTextNode(
+      " Diktat ist in der eingebetteten Vorschau gesperrt. "));
+    const a = el("a", null, "In eigenem Tab öffnen");
+    a.href = location.href;
+    a.target = "_blank";
+    a.rel = "noopener";
+    sprachhinweis.appendChild(a);
+    sprachhinweis.classList.add("sprachhinweis--dauer");
+    sprachhinweis.hidden = false;
+  }
+
   function diktatEinrichten() {
-    if (!window.T24Sprache || !window.T24Sprache.verfuegbar()) return;
+    if (!window.T24Sprache) return;
+
+    const zustand = window.T24Sprache.zustand();
+    if (zustand === "gesperrt") { diktatGesperrtZeigen(); return; }
+    if (zustand !== "ok") return;        /* Firefox, http:// - still nichts */
 
     diktat = window.T24Sprache.erstellen({
       sprache: "de-DE",
@@ -846,7 +868,15 @@
         if (hoert) sprachhinweisZeigen("");
       },
 
-      onFehler(meldung) { sprachhinweisZeigen(meldung); }
+      onFehler(meldung) {
+        /* Verweigert und eingebettet: fast immer der Rahmen, nicht der Nutzer. */
+        if (window.T24Sprache.eingebettet() &&
+            meldung.indexOf("Mikrofon") !== -1) {
+          diktatGesperrtZeigen();
+          return;
+        }
+        sprachhinweisZeigen(meldung);
+      }
     });
 
     if (!diktat) return;

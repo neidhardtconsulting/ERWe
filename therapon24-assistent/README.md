@@ -235,6 +235,13 @@ Umgesetzt mit der Spracherkennung des Browsers (Web Speech API) in
 | Safari ab iOS 14.5 | funktioniert |
 | Firefox | nicht unterstützt — der Knopf bleibt verborgen, Tippen geht weiter |
 | Nur über HTTPS | über `http://` bietet der Browser kein Mikrofon an |
+| Eingebettet in fremde Seiten | nur wenn der Rahmen `allow="microphone"` setzt |
+
+`T24Sprache.zustand()` unterscheidet vier Lagen: `ok`, `kein-browser`,
+`unsicher` (kein HTTPS) und `gesperrt` (eingebettet ohne Mikrofon-Freigabe).
+Im Fall `gesperrt` erscheint kein toter Knopf, sondern ein Hinweis mit Verweis
+zum Öffnen in einem eigenen Tab. Eine Artifact-Vorschau auf claude.ai ist so
+ein Fall — dort läuft die Seite in einem Rahmen ohne Mikrofon-Freigabe.
 
 **Wichtig für den Store-Weg:** In einer nativen Hülle (Capacitor, WKWebView)
 steht diese Schnittstelle auf **iOS nicht** zur Verfügung. Dort wäre

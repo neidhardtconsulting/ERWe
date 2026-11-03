@@ -30,7 +30,37 @@
   }
 
   function verfuegbar() {
-    return !!Erkennung && sichererKontext();
+    return !!Erkennung && sichererKontext() && zustand() === "ok";
+  }
+
+  /* Läuft die Seite in einem fremden Rahmen? */
+  function eingebettet() {
+    try { return window.self !== window.top; } catch (e) { return true; }
+  }
+
+  /* Ein Rahmen muss das Mikrofon ausdrücklich durchreichen
+     (<iframe allow="microphone">). Fehlt das, ist jeder Mikrofonknopf tot —
+     dann lieber gar keinen zeigen, sondern den Grund nennen. */
+  function mikrofonDurchgereicht() {
+    const richtlinie = document.permissionsPolicy || document.featurePolicy;
+    if (richtlinie && typeof richtlinie.allowsFeature === "function") {
+      try { return richtlinie.allowsFeature("microphone"); } catch (e) { /* weiter */ }
+    }
+    return null;   // nicht feststellbar (z. B. Safari)
+  }
+
+  /**
+   * Warum geht Diktat (nicht)?
+   *   "ok"           einsatzbereit
+   *   "kein-browser" Browser kann keine Spracherkennung (z. B. Firefox)
+   *   "unsicher"     kein HTTPS — der Browser gibt kein Mikrofon frei
+   *   "gesperrt"     eingebettet, der Rahmen reicht das Mikrofon nicht durch
+   */
+  function zustand() {
+    if (!Erkennung) return "kein-browser";
+    if (!sichererKontext()) return "unsicher";
+    if (mikrofonDurchgereicht() === false) return "gesperrt";
+    return "ok";
   }
 
   /* Meldungen in Alltagssprache statt Fehlercodes. */
@@ -164,6 +194,6 @@
     };
   }
 
-  global.T24Sprache = { verfuegbar, erstellen };
+  global.T24Sprache = { verfuegbar, erstellen, zustand, eingebettet };
 
 })(typeof window !== "undefined" ? window : globalThis);
