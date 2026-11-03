@@ -1,0 +1,146 @@
+/* ===========================================================================
+   THERAPON24 — DESIGN-TOKENS / MARKENFARBEN
+   ---------------------------------------------------------------------------
+   Farben abgeleitet vom Webauftritt therapon24.de:
+     · Therapon-Blau (Slate/Navy)  -> Logo-Wortmarke, Überschriften, Fließtext
+     · Therapon-Orange             -> Logo-Signet, Buttons, Unterstreichungen
+     · Creme/Peach                 -> Flächen und Karten
+   >>> Falls aus dem CI-Handbuch exakte Hex-Codes kommen: NUR den Block
+       "MARKE" ersetzen. Die gesamte App bezieht jede Farbe aus diesen
+       Variablen und zieht automatisch nach. <<<
+   =========================================================================== */
+
+:root {
+  /* ---------- MARKE ------------------------------------------------------- */
+  --t24-blue:           #42628F;   /* Therapon-Blau: Kopfzeile, Überschriften */
+  --t24-blue-dark:      #334E73;   /* Hover, Verläufe                         */
+  --t24-blue-darker:    #233853;   /* tiefster Ton                            */
+  --t24-blue-light:     #7488BB;   /* Periwinkle: Icons, sekundäre Flächen    */
+  --t24-blue-wash:      #EDF1F8;   /* helle blaue Fläche                      */
+
+  --t24-orange:         #F0912B;   /* Therapon-Orange: CTA, Akzent            */
+  --t24-orange-dark:    #D97C18;   /* Hover                                   */
+  --t24-orange-light:   #F7B268;
+  --t24-cream:          #FDF0E1;   /* Karten-/Sektionsfläche wie auf der Site */
+
+  /* ---------- ROLLEN (werden in der App benutzt) -------------------------- */
+  --t24-primary:        var(--t24-blue);
+  --t24-primary-dark:   var(--t24-blue-dark);
+  --t24-primary-darker: var(--t24-blue-darker);
+  --t24-primary-light:  var(--t24-blue-light);
+  --t24-primary-wash:   var(--t24-blue-wash);
+  --t24-accent:         var(--t24-orange);
+  --t24-accent-dark:    var(--t24-orange-dark);
+  --t24-accent-wash:    var(--t24-cream);
+
+  /* ---------- SEMANTISCH --------------------------------------------------- */
+  --t24-ok:             #1E8E5A;
+  --t24-ok-wash:        #E7F5EE;
+  --t24-warn:           #B9791C;
+  --t24-warn-wash:      #FDF4E3;
+  --t24-urgent:         #C0392B;
+  --t24-urgent-wash:    #FCEDEB;
+
+  /* ---------- NEUTRAL (blaustichig, passend zur Wortmarke) ---------------- */
+  --t24-ink:            #27384F;   /* Fließtext            */
+  --t24-ink-soft:       #5E7194;   /* Sekundärtext         */
+  --t24-ink-faint:      #8A9BB8;   /* Meta, Zeitstempel    */
+  --t24-line:           #DDE4EE;   /* Rahmen, Trenner      */
+  --t24-line-soft:      #EDF1F7;
+  --t24-surface:        #FFFFFF;   /* Karten               */
+  --t24-surface-2:      #F7F9FC;   /* zweite Ebene         */
+  --t24-bg:             #F1F4F9;   /* App-Hintergrund      */
+
+  /* ---------- TYPOGRAFIE -------------------------------------------------- */
+  --t24-font: "Source Sans 3", "Source Sans Pro", -apple-system,
+              BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+              Arial, sans-serif;
+
+  /* ---------- FORM / TIEFE ------------------------------------------------ */
+  --t24-r-sm:   8px;
+  --t24-r:     14px;
+  --t24-r-lg:  22px;
+  --t24-r-pill: 999px;
+  --t24-shadow-sm: 0 1px 2px rgba(35, 56, 83, .06), 0 1px 3px rgba(35, 56, 83, .05);
+  --t24-shadow:    0 2px 6px rgba(35, 56, 83, .07), 0 8px 24px rgba(35, 56, 83, .07);
+  --t24-shadow-lg: 0 12px 40px rgba(35, 56, 83, .16);
+  --t24-ring: 0 0 0 3px rgba(66, 98, 143, .3);
+
+  /* ---------- LAYOUT ------------------------------------------------------ */
+  --t24-header-h: 60px;
+  --t24-max: 860px;
+}
+
+/* ===========================================================================
+   DUNKELMODUS — folgt der Systemeinstellung, lässt sich über
+   <html data-theme="light|dark"> fest übersteuern (Schalter in der Kopfzeile).
+   =========================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --t24-blue:         #8BA6D6;
+    --t24-blue-dark:    #7390C4;
+    --t24-blue-darker:  #C3D3EE;
+    --t24-blue-light:   #9DB2DC;
+    --t24-blue-wash:    #1E2C42;
+
+    --t24-orange:       #FFA64D;
+    --t24-orange-dark:  #E98F32;
+    --t24-orange-light: #FFC083;
+    --t24-cream:        #3A2C1C;
+
+    --t24-ok:           #4FC98B;
+    --t24-ok-wash:      #163329;
+    --t24-warn:         #E7B45C;
+    --t24-warn-wash:    #332C18;
+    --t24-urgent:       #F0867A;
+    --t24-urgent-wash:  #3A1E1C;
+
+    --t24-ink:          #E6ECF6;
+    --t24-ink-soft:     #AEBDD6;
+    --t24-ink-faint:    #8094B4;
+    --t24-line:         #2C3C55;
+    --t24-line-soft:    #223047;
+    --t24-surface:      #182538;
+    --t24-surface-2:    #142032;
+    --t24-bg:           #0E1826;
+
+    --t24-shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+    --t24-shadow:    0 2px 6px rgba(0, 0, 0, .34), 0 8px 24px rgba(0, 0, 0, .28);
+    --t24-shadow-lg: 0 12px 40px rgba(0, 0, 0, .45);
+    --t24-ring: 0 0 0 3px rgba(139, 166, 214, .35);
+  }
+}
+
+:root[data-theme="dark"] {
+  --t24-blue:         #8BA6D6;
+  --t24-blue-dark:    #7390C4;
+  --t24-blue-darker:  #C3D3EE;
+  --t24-blue-light:   #9DB2DC;
+  --t24-blue-wash:    #1E2C42;
+
+  --t24-orange:       #FFA64D;
+  --t24-orange-dark:  #E98F32;
+  --t24-orange-light: #FFC083;
+  --t24-cream:        #3A2C1C;
+
+  --t24-ok:           #4FC98B;
+  --t24-ok-wash:      #163329;
+  --t24-warn:         #E7B45C;
+  --t24-warn-wash:    #332C18;
+  --t24-urgent:       #F0867A;
+  --t24-urgent-wash:  #3A1E1C;
+
+  --t24-ink:          #E6ECF6;
+  --t24-ink-soft:     #AEBDD6;
+  --t24-ink-faint:    #8094B4;
+  --t24-line:         #2C3C55;
+  --t24-line-soft:    #223047;
+  --t24-surface:      #182538;
+  --t24-surface-2:    #142032;
+  --t24-bg:           #0E1826;
+
+  --t24-shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+  --t24-shadow:    0 2px 6px rgba(0, 0, 0, .34), 0 8px 24px rgba(0, 0, 0, .28);
+  --t24-shadow-lg: 0 12px 40px rgba(0, 0, 0, .45);
+  --t24-ring: 0 0 0 3px rgba(139, 166, 214, .35);
+}

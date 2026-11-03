@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Therapon24 Assistent — Pflege</title>
+<meta name="theme-color" content="#42628F">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+  body { background: var(--t24-bg); }
+  .seite { max-width: 820px; margin: 0 auto; padding: 22px 16px 70px; }
+  .seite__kopf { display: flex; align-items: center; gap: 13px; margin-bottom: 7px; }
+  .seite__kopf img { height: 34px; }
+  .seite h1 { font-size: 23px; color: var(--t24-primary-darker); }
+  .lead { color: var(--t24-ink-soft); margin-bottom: 22px; font-size: 15.5px; }
+
+  .reiter { display: flex; gap: 7px; margin-bottom: 20px; flex-wrap: wrap; }
+  .reiter button {
+    background: var(--t24-surface); border: 1px solid var(--t24-line);
+    color: var(--t24-ink-soft); border-radius: var(--t24-r-pill);
+    padding: 8px 17px; font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer;
+  }
+  .reiter button[aria-selected="true"] {
+    background: var(--t24-primary); border-color: var(--t24-primary); color: #fff;
+  }
+  .tafel { display: none; } .tafel.aktiv { display: block; }
+
+  .karte {
+    background: var(--t24-surface); border: 1px solid var(--t24-line);
+    border-radius: var(--t24-r); padding: 17px 19px; margin-bottom: 15px;
+  }
+  .karte > h2 {
+    font-size: 15px; color: var(--t24-accent-dark);
+    text-transform: uppercase; letter-spacing: .04em; margin-bottom: 13px;
+  }
+  .feld { margin-bottom: 13px; }
+  .feld label { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 4px; }
+  .feld small { display: block; color: var(--t24-ink-faint); font-size: 12.5px; margin-bottom: 5px; }
+  .feld input {
+    width: 100%; font: inherit; font-size: 15px; color: var(--t24-ink);
+    background: var(--t24-surface-2); border: 1px solid var(--t24-line);
+    border-radius: var(--t24-r-sm); padding: 9px 12px;
+  }
+  .feld input:focus { outline: none; box-shadow: var(--t24-ring); border-color: var(--t24-primary-light); }
+  .feld--offen input { border-color: var(--t24-warn); background: var(--t24-warn-wash); }
+  .zweispaltig { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  @media (max-width: 560px) { .zweispaltig { grid-template-columns: 1fr; } }
+
+  .leiste {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--t24-surface); border-top: 1px solid var(--t24-line);
+    padding: 11px 16px calc(11px + env(safe-area-inset-bottom));
+    display: flex; gap: 10px; align-items: center; justify-content: center;
+    box-shadow: 0 -2px 12px rgba(35,56,83,.07); z-index: 30;
+  }
+  .knopf {
+    background: var(--t24-accent); color: #fff; border: none;
+    border-radius: var(--t24-r-pill); padding: 10px 21px;
+    font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  .knopf:hover { background: var(--t24-accent-dark); }
+  .knopf--leise { background: var(--t24-surface); color: var(--t24-primary); border: 1px solid var(--t24-line); }
+  .knopf--leise:hover { background: var(--t24-primary-wash); }
+  .zaehler { font-size: 13.5px; color: var(--t24-ink-faint); }
+
+  .eintrag { border-bottom: 1px solid var(--t24-line-soft); padding: 11px 0; }
+  .eintrag:last-child { border-bottom: none; }
+  .eintrag b { display: block; font-size: 15px; }
+  .eintrag span { font-size: 13.5px; color: var(--t24-ink-faint); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--t24-line-soft); }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--t24-ink-faint); }
+</style>
+</head>
+<body>
+<div class="seite">
+
+  <div class="seite__kopf">
+    <img src="img/logo.svg" alt="Therapon24">
+    <h1>Assistent — Pflege</h1>
+  </div>
+  <p class="lead">
+    Hier werden die firmenspezifischen Angaben eingetragen, die der Assistent
+    ausgibt. Was hier leer bleibt, markiert die App in den Antworten gelb als
+    „noch zu ergänzen“ — erfunden wird nichts.
+  </p>
+
+  <div class="reiter" role="tablist">
+    <button role="tab" aria-selected="true"  data-tafel="daten">Firmendaten</button>
+    <button role="tab" aria-selected="false" data-tafel="wissen">Wissensbasis</button>
+    <button role="tab" aria-selected="false" data-tafel="rueck">Rückmeldungen</button>
+  </div>
+
+  <!-- ================= Firmendaten ================= -->
+  <section class="tafel aktiv" id="tafel-daten"><div id="formular"></div></section>
+
+  <!-- ================= Wissensbasis ================= -->
+  <section class="tafel" id="tafel-wissen">
+    <div class="karte">
+      <h2>Alle hinterlegten Antworten</h2>
+      <p class="lead" style="margin-bottom:14px">
+        Inhaltliche Änderungen erfolgen in <code>js/wissen.js</code>. Diese
+        Übersicht zeigt, was der Assistent aktuell beantworten kann.
+      </p>
+      <div id="wissenListe"></div>
+    </div>
+  </section>
+
+  <!-- ================= Rückmeldungen ================= -->
+  <section class="tafel" id="tafel-rueck">
+    <div class="karte">
+      <h2>Fragen ohne Antwort</h2>
+      <p class="lead" style="margin-bottom:12px">
+        Fragen, auf die der Assistent in diesem Browser nichts gefunden hat.
+        Das sind die Lücken, die als Nächstes in die Wissensbasis gehören.
+      </p>
+      <div id="luecken"></div>
+    </div>
+    <div class="karte">
+      <h2>Bewertungen</h2>
+      <div id="bewertungen"></div>
+    </div>
+    <div class="karte">
+      <h2>Hinweis zum Speicherort</h2>
+      <p style="font-size:14.5px;color:var(--t24-ink-soft)">
+        Rückmeldungen werden ausschließlich lokal im Browser der jeweiligen
+        Person gespeichert und nicht übertragen. Für eine zentrale Auswertung
+        über alle Mitarbeitenden hinweg wäre ein Backend nötig.
+      </p>
+    </div>
+  </section>
+</div>
+
+<div class="leiste">
+  <span class="zaehler" id="zaehler"></span>
+  <button class="knopf--leise knopf" type="button" id="btnKopieren">In Zwischenablage</button>
+  <button class="knopf" type="button" id="btnDownload">config.js herunterladen</button>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/wissen.js"></script>
+<script src="js/engine.js"></script>
+<script>
+(function () {
+  "use strict";
+  const CONFIG = window.T24_CONFIG;
+  const engine = new window.T24Engine.Engine(
+    window.T24_WISSEN, window.T24_KATEGORIEN, CONFIG);
+
+  const $ = (s) => document.querySelector(s);
+  const el = (t, k, x) => { const n = document.createElement(t);
+    if (k) n.className = k; if (x !== undefined) n.textContent = x; return n; };
+
+  /* ---- Welche Felder bietet das Formular an? ---------------------------- */
+  const GRUPPEN = [
+    { titel: "Ansprechpartner", felder: Object.keys(CONFIG.kontakt).flatMap((r) => [
+        { pfad: "kontakt." + r + ".name",   label: CONFIG.kontakt[r].label + " — Name" },
+        { pfad: "kontakt." + r + ".tel",    label: "Telefon" },
+        { pfad: "kontakt." + r + ".mail",   label: "E-Mail" },
+        { pfad: "kontakt." + r + ".zeiten", label: "Erreichbarkeit",
+          hilfe: "z. B. Mo–Fr 8:00–16:00 Uhr" }
+      ]) },
+    { titel: "Zeiterfassung", felder: [
+        { pfad: "zeiterfassung.tool",        label: "Name des Systems", hilfe: "z. B. Papershift, Clockodo, Stundenzettel (PDF)" },
+        { pfad: "zeiterfassung.toolLink",    label: "Direktlink zum System" },
+        { pfad: "zeiterfassung.abgabefrist", label: "Abgabefrist", hilfe: "z. B. bis zum 3. des Folgemonats" },
+        { pfad: "zeiterfassung.rundung",     label: "Rundung", hilfe: "z. B. auf 5 Minuten" },
+        { pfad: "zeiterfassung.fahrzeitRegel", label: "Regelung zur Fahrzeit" },
+        { pfad: "zeiterfassung.vorbereitungszeit", label: "Vor- und Nachbereitungszeit" }
+      ] },
+    { titel: "Krankmeldung", felder: [
+        { pfad: "krankmeldung.meldewegPrimaer", label: "Meldeweg", hilfe: "z. B. telefonisch bei der Einsatzleitung" },
+        { pfad: "krankmeldung.uhrzeit",         label: "Bis wann melden", hilfe: "z. B. spätestens 1 Stunde vor Dienstbeginn" },
+        { pfad: "krankmeldung.auAbTag",         label: "AU ab welchem Tag", hilfe: "z. B. ab dem 1. Tag" },
+        { pfad: "krankmeldung.auWeg",           label: "Weg für die AU", hilfe: "z. B. eAU — Krankenkasse meldet automatisch" },
+        { pfad: "krankmeldung.schuleInfo",      label: "Wer informiert die Schule" }
+      ] },
+    { titel: "Urlaub", felder: [
+        { pfad: "urlaub.anspruch",   label: "Urlaubsanspruch", hilfe: "z. B. 30 Tage bei 5-Tage-Woche" },
+        { pfad: "urlaub.antragsweg", label: "Antragsweg" },
+        { pfad: "urlaub.vorlauf",    label: "Vorlauffrist", hilfe: "z. B. spätestens 4 Wochen vorher" },
+        { pfad: "urlaub.ferienRegel",label: "Regelung für die Schulferien" }
+      ] },
+    { titel: "Entgelt", felder: [
+        { pfad: "entgelt.zahltag",          label: "Zahltag", hilfe: "z. B. zum 15. des Folgemonats" },
+        { pfad: "entgelt.abrechnungPortal", label: "Abrechnungsportal" },
+        { pfad: "entgelt.abrechnungLink",   label: "Link zum Portal" }
+      ] },
+    { titel: "Fahrtkosten", felder: [
+        { pfad: "fahrtkosten.regelung",          label: "Regelung" },
+        { pfad: "fahrtkosten.abrechnungsweg",    label: "Abrechnungsweg" },
+        { pfad: "fahrtkosten.deutschlandticket", label: "Deutschlandticket / ÖPNV" }
+      ] },
+    { titel: "Links", felder: [
+        { pfad: "links.mitarbeiterportal", label: "Mitarbeiterportal" },
+        { pfad: "links.intranet",          label: "Intranet" },
+        { pfad: "links.formulare",         label: "Formulare" },
+        { pfad: "links.fortbildungen",     label: "Fortbildungsangebot" }
+      ] },
+    { titel: "Allgemein", felder: [
+        { pfad: "stand", label: "Stand der Angaben", hilfe: "z. B. Stand: 01.12.2025" }
+      ] }
+  ];
+
+  const hole = (p) => p.split(".").reduce((o, k) => (o || {})[k], CONFIG);
+  const setze = (p, w) => {
+    const t = p.split("."), letzt = t.pop();
+    t.reduce((o, k) => o[k], CONFIG)[letzt] = w;
+  };
+
+  /* ---- Formular aufbauen -------------------------------------------------
+     Zwei Stufen der Dringlichkeit:
+       · leer                -> gelb markiert, fehlt noch
+       · leer UND in einer Antwort referenziert -> zusätzlich im Zähler  */
+  const inAntworten = new Set(engine.offenePlatzhalter());
+  const istLeer = (pfad) => !String(hole(pfad) || "").trim();
+
+  function formularBauen() {
+    const ziel = $("#formular");
+    ziel.textContent = "";
+    GRUPPEN.forEach((g) => {
+      const karte = el("div", "karte");
+      karte.appendChild(el("h2", null, g.titel));
+      const raster = el("div", g.titel === "Ansprechpartner" ? "zweispaltig" : "");
+      g.felder.forEach((f) => {
+        const box = el("div", "feld" + (istLeer(f.pfad) ? " feld--offen" : ""));
+        const id = "f_" + f.pfad.replace(/\./g, "_");
+        const lab = el("label", null, f.label);
+        lab.htmlFor = id;
+        box.appendChild(lab);
+        if (f.hilfe) box.appendChild(el("small", null, f.hilfe));
+        const inp = el("input");
+        inp.id = id; inp.type = "text";
+        inp.value = hole(f.pfad) || "";
+        inp.placeholder = inAntworten.has(f.pfad)
+          ? "noch zu ergänzen — erscheint in Antworten"
+          : (istLeer(f.pfad) ? "noch zu ergänzen" : "");
+        inp.addEventListener("input", () => {
+          setze(f.pfad, inp.value);
+          box.classList.toggle("feld--offen", istLeer(f.pfad));
+          zaehlerAktualisieren();
+        });
+        box.appendChild(inp);
+        raster.appendChild(box);
+      });
+      karte.appendChild(raster);
+      ziel.appendChild(karte);
+    });
+  }
+
+  function zaehlerAktualisieren() {
+    const alle = GRUPPEN.flatMap((g) => g.felder);
+    const leer = alle.filter((f) => istLeer(f.pfad)).length;
+    const sichtbar = new window.T24Engine.Engine(
+      window.T24_WISSEN, window.T24_KATEGORIEN, CONFIG).offenePlatzhalter().length;
+    $("#zaehler").textContent = leer === 0
+      ? "Alle " + alle.length + " Felder ausgefüllt."
+      : (alle.length - leer) + " von " + alle.length + " Feldern ausgefüllt" +
+        (sichtbar ? " · " + sichtbar + " davon direkt in Antworten sichtbar" : "");
+  }
+
+  /* ---- Ausgabe als fertige config.js ------------------------------------- */
+  function configText() {
+    return "/* ========================================================================" +
+      "===\n   THERAPON24 ASSISTENT — ZENTRALE KONFIGURATION\n" +
+      "   Erzeugt über admin.html am " + new Date().toLocaleString("de-DE") + "\n" +
+      "   Diese Datei ersetzt js/config.js.\n" +
+      "   =====================================================================" +
+      "====== */\n\nwindow.T24_CONFIG = " +
+      JSON.stringify(CONFIG, null, 2) + ";\n";
+  }
+
+  $("#btnDownload").addEventListener("click", () => {
+    const blob = new Blob([configText()], { type: "text/javascript;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "config.js";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+
+  $("#btnKopieren").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(configText());
+      $("#btnKopieren").textContent = "Kopiert ✓";
+      setTimeout(() => { $("#btnKopieren").textContent = "In Zwischenablage"; }, 1800);
+    } catch (e) {
+      alert("Kopieren nicht möglich. Bitte den Download nutzen.");
+    }
+  });
+
+  /* ---- Wissensbasis-Übersicht -------------------------------------------- */
+  function wissenRendern() {
+    const ziel = $("#wissenListe");
+    (window.T24_KATEGORIEN || []).forEach((kat) => {
+      const fragen = window.T24_WISSEN.filter((e) => e.kategorie === kat.id);
+      if (!fragen.length) return;
+      const h = el("div", "gruppe__titel", kat.label + " (" + fragen.length + ")");
+      h.style.marginTop = "15px";
+      ziel.appendChild(h);
+      fragen.forEach((e) => {
+        const box = el("div", "eintrag");
+        box.appendChild(el("b", null, e.frage));
+        box.appendChild(el("span", null, "id: " + e.id +
+          (e.rechtlich ? " · allgemeine Rechtslage" : "")));
+        ziel.appendChild(box);
+      });
+    });
+  }
+
+  /* ---- Rückmeldungen ------------------------------------------------------ */
+  function lesen(key) {
+    try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
+  }
+
+  function rueckRendern() {
+    const luecken = lesen("t24.luecken");
+    const zielL = $("#luecken");
+    if (!luecken.length) {
+      zielL.appendChild(el("p", "leer", "Bisher keine unbeantworteten Fragen in diesem Browser."));
+    } else {
+      const t = el("table");
+      const kopf = el("tr");
+      ["Frage", "Zeitpunkt"].forEach((x) => kopf.appendChild(el("th", null, x)));
+      t.appendChild(kopf);
+      luecken.slice().reverse().forEach((l) => {
+        const tr = el("tr");
+        tr.appendChild(el("td", null, l.frage));
+        tr.appendChild(el("td", null, new Date(l.zeit).toLocaleString("de-DE")));
+        t.appendChild(tr);
+      });
+      zielL.appendChild(t);
+    }
+
+    const bew = lesen("t24.feedback");
+    const zielB = $("#bewertungen");
+    if (!bew.length) {
+      zielB.appendChild(el("p", "leer", "Bisher keine Bewertungen in diesem Browser."));
+      return;
+    }
+    const je = {};
+    bew.forEach((b) => {
+      je[b.id] = je[b.id] || { hoch: 0, runter: 0 };
+      b.wert > 0 ? je[b.id].hoch++ : je[b.id].runter++;
+    });
+    const t = el("table");
+    const kopf = el("tr");
+    ["Antwort", "Hilfreich", "Nicht hilfreich"].forEach((x) => kopf.appendChild(el("th", null, x)));
+    t.appendChild(kopf);
+    Object.keys(je).sort((a, b) => je[b].runter - je[a].runter).forEach((id) => {
+      const e = window.T24_WISSEN.find((x) => x.id === id);
+      const tr = el("tr");
+      tr.appendChild(el("td", null, e ? e.frage : id));
+      tr.appendChild(el("td", null, String(je[id].hoch)));
+      tr.appendChild(el("td", null, String(je[id].runter)));
+      t.appendChild(tr);
+    });
+    zielB.appendChild(t);
+  }
+
+  /* ---- Reiter -------------------------------------------------------------- */
+  document.querySelectorAll(".reiter button").forEach((b) => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".reiter button")
+        .forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+      document.querySelectorAll(".tafel")
+        .forEach((t) => t.classList.toggle("aktiv", t.id === "tafel-" + b.dataset.tafel));
+      document.querySelector(".leiste").style.display =
+        b.dataset.tafel === "daten" ? "flex" : "none";
+    });
+  });
+
+  formularBauen();
+  wissenRendern();
+  rueckRendern();
+  zaehlerAktualisieren();
+})();
+</script>
+</body>
+</html>

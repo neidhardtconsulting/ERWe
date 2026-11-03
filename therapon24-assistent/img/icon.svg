@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Therapon24 Assistent">
+  <rect width="192" height="192" rx="42" fill="#42628F"/>
+  <circle cx="96" cy="84" r="44" fill="#F0912B"/>
+  <circle cx="96" cy="64" r="9.5" fill="#fff"/>
+  <path d="M96 77c-7.6 0-13.3 4.6-15.7 10.9l-9.6 22c-1.1 2.8.3 5.9 3.1 6.9 2.8 1.1 5.9-.3 6.9-3.1l5.8-13.9v19.3c0 3 2.4 5.4 5.4 5.4h8.2c3 0 5.4-2.4 5.4-5.4V99.8l5.8 13.9c1.1 2.8 4.2 4.1 6.9 3.1 2.8-1.1 4.1-4.2 3.1-6.9l-9.6-22C109.3 81.6 103.6 77 96 77z" fill="#fff"/>
+  <path d="M60 150h72" stroke="#F0912B" stroke-width="9" stroke-linecap="round"/>
+</svg>

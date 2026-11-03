@@ -1,0 +1,14 @@
+{
+  "name": "therapon24-assistent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interner Chat-Assistent für Schulbegleitungen und Mitarbeitende von Therapon24",
+  "type": "module",
+  "scripts": {
+    "test": "node test/engine.test.js",
+    "start": "npx --yes serve ."
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0"
+  }
+}

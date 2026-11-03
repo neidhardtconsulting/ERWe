@@ -1,0 +1,16 @@
+{
+  "name": "Therapon24 Assistent",
+  "short_name": "T24 Assistent",
+  "description": "Antworten auf Fragen aus dem Arbeitsalltag — Zeiterfassung, Krankmeldung, Urlaub und Schulalltag.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F1F4F9",
+  "theme_color": "#42628F",
+  "icons": [
+    { "src": "img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

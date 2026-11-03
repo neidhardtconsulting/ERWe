@@ -1,0 +1,15 @@
+<!-- Platzhalter-Logo fuer den Dunkelmodus (helle Wortmarke).
+     Sobald die Original-SVG aus dem CI vorliegt, diese Datei einfach ersetzen. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 92" role="img"
+     aria-label="Therapon24">
+  <g>
+    <circle cx="46" cy="46" r="34" fill="#F0912B"/>
+    <circle cx="46" cy="30" r="7.5" fill="#fff"/>
+    <path d="M46 40c-6 0-10.5 3.6-12.4 8.6L26 66c-.9 2.2.2 4.6 2.4 5.4 2.2.8 4.6-.3 5.4-2.4l4.6-11v15.2c0 2.4 1.9 4.3 4.3 4.3h6.6c2.4 0 4.3-1.9 4.3-4.3V58l4.6 11c.9 2.2 3.3 3.2 5.4 2.4 2.2-.9 3.2-3.3 2.4-5.4l-7.6-17.4C56.5 43.6 52 40 46 40z" fill="#fff"/>
+  </g>
+  <text x="96" y="58" font-family="Source Sans 3, Segoe UI, Arial, sans-serif"
+        font-size="44" font-weight="600" fill="#C3D3EE">Therapon</text>
+  <text x="283" y="58" font-family="Source Sans 3, Segoe UI, Arial, sans-serif"
+        font-size="44" font-weight="600" fill="#F0912B">24</text>
+  <rect x="96" y="66" width="246" height="4" rx="2" fill="#F0912B"/>
+</svg>
