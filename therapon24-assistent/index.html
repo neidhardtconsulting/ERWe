@@ -7,7 +7,7 @@
 <meta name="description" content="Interner Assistent für Schulbegleitungen und Mitarbeitende von Therapon24 — Antworten zu Zeiterfassung, Krankmeldung, Urlaub und Schulalltag.">
 <meta name="theme-color" content="#42628F">
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="img/icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="img/icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,6 +45,8 @@
     <g id="i-reset"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5V10H9"/></g>
     <g id="i-pfeil"><path d="M12 19V5"/><path d="M5.5 11.5 12 5l6.5 6.5"/></g>
     <g id="i-neu"><path d="M16.5 3.8a2 2 0 0 1 2.8 2.8L9.5 16.4l-3.7 1 1-3.7 9.7-9.9z"/><path d="M4 20.5h16"/></g>
+    <g id="i-weg"><path d="M4.5 7h15M9.5 7V5.2a1.2 1.2 0 0 1 1.2-1.2h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/><path d="M6.5 7l.8 12a1.8 1.8 0 0 0 1.8 1.7h5.8a1.8 1.8 0 0 0 1.8-1.7l.8-12"/></g>
+    <g id="i-plus"><path d="M12 5.5v13M5.5 12h13"/></g>
   </defs>
 </svg>
 
@@ -115,19 +117,26 @@
   <div class="schublade__hinter" data-schliessen></div>
   <div class="schublade__inhalt">
     <div class="schublade__kopf">
-      <h2>Themen</h2>
+      <h2>Therapon24 Assistent</h2>
       <button class="ikonbtn" type="button" data-schliessen aria-label="Schließen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
              stroke-linecap="round"><use href="#i-close"/></svg>
       </button>
     </div>
+
+    <button class="neuerchat" id="btnNeuerChat" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round"><use href="#i-plus"/></svg>
+      Neuer Chat
+    </button>
+
     <div class="schublade__suche">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
            stroke-linecap="round"><use href="#i-search"/></svg>
       <input type="search" id="suche" placeholder="Thema suchen …" aria-label="Thema suchen">
     </div>
     <div id="setupHinweis"></div>
-    <div class="schublade__liste" id="themenListe"></div>
+    <div class="schublade__liste" id="schubladeListe"></div>
   </div>
 </div>
 

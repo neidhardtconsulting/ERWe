@@ -22,10 +22,14 @@ Aufgebaut wie ein gewohnter Chat-Assistent — man kann sofort lostippen:
   Rechtsgrundlagen liegen unter „Mehr dazu“. Keine Kategorie-Etiketten, keine
   wiederholte Überschrift, höchstens zwei Folgefragen. Die Bewertungszeile ist
   standardmäßig aus (`optionen.feedbackSammeln` in `js/config.js`).
-- **Seitenleiste (☰ links oben):** alle 58 Fragen nach Bereichen sortiert,
-  mit Suchfeld.
-- **Stift-Symbol rechts oben:** neues Gespräch. Der Verlauf bleibt sonst
-  erhalten, auch nach dem Schließen der App.
+- **Mehrere Chats:** Jedes Gespräch wird unter seiner ersten Frage geführt und
+  bleibt in der Seitenleiste abrufbar — wechseln per Klick, einzeln löschbar
+  über das Papierkorb-Symbol. „Neuer Chat“ über den Knopf in der Seitenleiste
+  oder das Stift-Symbol rechts oben; das laufende Gespräch geht dabei nicht
+  verloren. Es werden bis zu 40 Gespräche behalten, danach fällt das älteste
+  heraus.
+- **Seitenleiste (☰ links oben):** oben die Chats, darunter aufklappbar alle
+  58 Fragen nach Bereichen, plus Suchfeld.
 
 ---
 
@@ -88,7 +92,13 @@ Original-SVG zu ersetzen:
 | `img/logo.svg` | Wortmarke in der Kopfzeile (heller Modus) |
 | `img/logo-dark.svg` | dieselbe Wortmarke in Hell — sonst im Dunkelmodus unlesbar |
 | `img/mark.svg` | Signet ohne Schrift: Startbildschirm und neben jeder Antwort |
-| `img/icon.svg` | App-Symbol für den Startbildschirm des Handys |
+| `img/icon.svg` | App-Symbol (Browser-Tab) |
+| `img/icon-180.png` | Startbildschirm iOS — iOS ignoriert SVG an dieser Stelle |
+| `img/icon-192.png`, `img/icon-512.png` | Startbildschirm Android, Store-Listing |
+
+Die PNG-Symbole sind randlos und das Motiv liegt in den inneren 80 % —
+iOS und Android legen ihre eigene Maske darüber. Neu erzeugen lassen sie sich
+aus dem Markup in `img/icon.svg`.
 
 ### 3. Veröffentlichen
 
@@ -197,14 +207,42 @@ Abschalten: in `js/config.js` `optionen.kiModus` auf `"aus"` setzen.
 
 ## Datenschutz
 
-- Chatverlauf, Bewertungen und unbeantwortete Fragen liegen **ausschließlich
+- Alle Chats, Bewertungen und unbeantworteten Fragen liegen **ausschließlich
   lokal** im Browser der jeweiligen Person (`localStorage`) und werden nicht
   übertragen. Für eine zentrale Auswertung wäre ein Backend nötig.
+- Gelöschte Chats sind sofort weg und nicht wiederherstellbar.
 - Der Assistent verarbeitet keine Klienten- oder Personaldaten. Die
   Wissensbasis enthält ausschließlich allgemeine Verfahrensinformationen.
 - Ohne KI-Modus verlässt keine einzige Eingabe das Gerät.
 
 ---
+
+## Verteilung an die Mitarbeitenden
+
+Drei Wege, Stand der Entscheidung: offen.
+
+1. **PWA (sofort, 0 €)** — Link aufrufen, „Zum Startbildschirm hinzufügen“.
+   Technisch vollständig vorbereitet: Manifest, Service Worker und PNG-Symbole
+   liegen bereit. Nachteil: Die Installationsgeste ist auf dem iPhone versteckt
+   und für technikferne Nutzende eine echte Hürde.
+2. **Private Store-App (empfohlen, falls Store)** — Der Code wird mit
+   Capacitor in eine native Hülle gepackt und privat verteilt: über
+   *Managed Google Play* (nur für die eigene Organisation sichtbar) und
+   Apple *Custom Apps* über den Apple Business Manager. Achtung: Apple prüft
+   auch Custom Apps im regulären Review. Für iOS-Builds wird ein Mac mit
+   Xcode gebraucht.
+3. **Öffentlicher Store** — nicht empfohlen. Apple-Richtlinie 4.2
+   („Minimum Functionality“) zielt auf eingepackte Websites, und interne
+   Abläufe samt Durchwahlen gehören nicht in ein öffentlich durchsuchbares
+   Verzeichnis. Dafür bräuchte es zwingend eine Anmeldung und damit ein
+   Backend.
+
+Vor einem Store-Weg zu erledigen: `optionen.apiPfad` in `js/config.js` auf eine
+**absolute** URL setzen — in einer Capacitor-App zeigt der relative Pfad
+`/api/chat` ins Leere, die App fiele still auf die Wissensbasis zurück.
+
+Kosten: Google Play einmalig ~25 USD, Apple Developer Program ~99 USD pro Jahr,
+Apple Business Manager kostenlos.
 
 ## Grenzen
 

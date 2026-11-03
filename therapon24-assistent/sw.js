@@ -7,7 +7,7 @@
    alte Zwischenspeicher verworfen.
    =========================================================================== */
 
-const VERSION = "t24-v1";
+const VERSION = "t24-v2";
 const DATEIEN = [
   "./",
   "./index.html",
@@ -21,6 +21,9 @@ const DATEIEN = [
   "./img/logo.svg",
   "./img/logo-dark.svg",
   "./img/mark.svg",
+  "./img/icon-180.png",
+  "./img/icon-192.png",
+  "./img/icon-512.png",
   "./img/icon.svg",
   "./manifest.webmanifest"
 ];

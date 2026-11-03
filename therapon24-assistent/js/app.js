@@ -20,10 +20,12 @@
   const feld       = $("#feld");
   const btnSenden  = $("#btnSenden");
   const schublade  = $("#schublade");
-  const themenListe = $("#themenListe");
+  const schubladeListe = $("#schubladeListe");
   const suche      = $("#suche");
 
-  const SPEICHER_VERLAUF = "t24.verlauf";
+  const SPEICHER_CHATS   = "t24.chats";     // alle Gespräche
+  const SPEICHER_AKTIV   = "t24.aktiv";     // id des offenen Gesprächs
+  const SPEICHER_VERLAUF = "t24.verlauf";   // Altbestand, wird einmalig übernommen
   const SPEICHER_THEME   = "t24.theme";
   const SPEICHER_FEEDBACK = "t24.feedback";
 
@@ -514,42 +516,98 @@
     ziel.appendChild(box);
   }
 
-  /* ---------- Themen-Schublade --------------------------------------------- */
+  /* ---------- Seitenleiste -------------------------------------------------
+     Oben die geführten Gespräche, darunter aufklappbar alle Themen.
+     Während einer Suche werden ausschließlich Treffer gezeigt.           */
 
-  function themenRendern(filterText, nurKategorie) {
-    themenListe.textContent = "";
+  function schubladeRendern(filterText) {
+    schubladeListe.textContent = "";
 
     if (filterText && filterText.trim()) {
       const treffer = engine.suchen(filterText);
       if (!treffer.length) {
-        themenListe.appendChild(el("p", "leer",
+        schubladeListe.appendChild(el("p", "leer",
           "Keine Treffer. Formuliere die Frage anders oder frag direkt im Chat."));
         return;
       }
       const gruppe = el("div", "gruppe");
-      gruppe.appendChild(el("div", "gruppe__titel",
-        treffer.length + " Treffer"));
+      gruppe.appendChild(el("div", "gruppe__titel", treffer.length + " Treffer"));
       const ul = el("ul", "frageliste");
       treffer.forEach((t) => ul.appendChild(frageZeile(t)));
       gruppe.appendChild(ul);
-      themenListe.appendChild(gruppe);
+      schubladeListe.appendChild(gruppe);
       return;
     }
 
+    chatlisteRendern();
+    schubladeListe.appendChild(themenBlock());
+  }
+
+  /* Liste der geführten Gespräche, neueste zuerst. */
+  function chatlisteRendern() {
+    const vorhanden = schubladeListe.querySelector("#chatliste");
+    if (vorhanden) vorhanden.remove();
+    if (suche.value.trim()) return;          /* während der Suche nicht zeigen */
+
+    const chats = chatsLesen()
+      .filter((c) => c.eintraege && c.eintraege.length)
+      .sort((x, y) => y.zeit - x.zeit);
+    if (!chats.length) return;
+
+    const block = el("div", "gruppe");
+    block.id = "chatliste";
+    block.appendChild(el("div", "gruppe__titel", "Chats"));
+
+    chats.forEach((c) => {
+      const zeile = el("div", "chatzeile" + (c.id === aktivId ? " chatzeile--aktiv" : ""));
+
+      const oeffnen = el("button", "chatzeile__oeffnen", c.titel || "Ohne Titel");
+      oeffnen.type = "button";
+      oeffnen.title = c.titel || "";
+      oeffnen.addEventListener("click", () => chatOeffnen(c.id));
+      zeile.appendChild(oeffnen);
+
+      const weg = el("button", "chatzeile__weg");
+      weg.type = "button";
+      weg.title = "Chat löschen";
+      weg.setAttribute("aria-label", "Chat „" + (c.titel || "Ohne Titel") + "“ löschen");
+      weg.appendChild(ikon("weg", "1.7"));
+      weg.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (confirm("Diesen Chat löschen?\n\n" + (c.titel || ""))) chatLoeschen(c.id);
+      });
+      zeile.appendChild(weg);
+
+      block.appendChild(zeile);
+    });
+
+    /* Immer oberhalb der Themen einhängen. */
+    schubladeListe.insertBefore(block, schubladeListe.firstChild);
+  }
+
+  /* Alle Fragen nach Bereichen - eingeklappt, damit die Liste ruhig bleibt. */
+  function themenBlock() {
+    const mehr = document.createElement("details");
+    mehr.className = "themen";
+    mehr.id = "themenblock";
+    const titel = document.createElement("summary");
+    titel.textContent = "Alle Themen";
+    mehr.appendChild(titel);
+
     (window.T24_KATEGORIEN || []).forEach((kat) => {
-      if (nurKategorie && kat.id !== nurKategorie) return;
       const fragen = engine.nachKategorie(kat.id);
       if (!fragen.length) return;
       const gruppe = el("div", "gruppe");
-      const titel = el("div", "gruppe__titel");
-      titel.appendChild(ikon(kat.icon, "1.9"));
-      titel.appendChild(document.createTextNode(kat.label));
-      gruppe.appendChild(titel);
+      const kopf = el("div", "gruppe__titel");
+      kopf.appendChild(ikon(kat.icon, "1.9"));
+      kopf.appendChild(document.createTextNode(kat.label));
+      gruppe.appendChild(kopf);
       const ul = el("ul", "frageliste");
       fragen.forEach((f) => ul.appendChild(frageZeile(f)));
       gruppe.appendChild(ul);
-      themenListe.appendChild(gruppe);
+      mehr.appendChild(gruppe);
     });
+    return mehr;
   }
 
   function frageZeile(f) {
@@ -561,19 +619,13 @@
     return li;
   }
 
-  function kategorieFiltern(katId) {
-    suche.value = "";
-    themenRendern("", katId);
-    themenListe.scrollTop = 0;
-  }
-
   let zuletztFokussiert = null;
 
   function schubladeOeffnen() {
     zuletztFokussiert = document.activeElement;
     schublade.classList.add("auf");
     $("#btnThemen").setAttribute("aria-expanded", "true");
-    themenRendern(suche.value, null);
+    schubladeRendern(suche.value);
     setTimeout(() => suche.focus(), 60);
     document.addEventListener("keydown", escBehandeln);
   }
@@ -589,21 +641,71 @@
     if (ev.key === "Escape") schubladeSchliessen();
   }
 
-  /* ---------- Verlauf speichern -------------------------------------------- */
+  /* ---------- Gespräche ----------------------------------------------------
+     Mehrere Chats nebeneinander, wie man es von Chat-Assistenten kennt:
+     jedes Gespräch wird unter seiner ersten Frage geführt, bleibt in der
+     Seitenleiste abrufbar und lässt sich einzeln löschen. Alles liegt
+     ausschließlich lokal im Browser.                                      */
+
+  const MAX_CHATS = 40;
+  let aktivId = null;
+
+  function neueId() {
+    return "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  function chatsLesen()  { return speicher.lesen(SPEICHER_CHATS, []); }
+  function chatsSchreiben(liste) {
+    /* Älteste zuerst verwerfen, damit der Speicher nicht unbegrenzt wächst. */
+    liste.sort((x, y) => x.zeit - y.zeit);
+    speicher.schreiben(SPEICHER_CHATS, liste.slice(-MAX_CHATS));
+  }
+
+  /* Überschrift aus der ersten Frage - wie in der Seitenleiste von Claude. */
+  function kurzTitel(text) {
+    const t = String(text || "").replace(/\s+/g, " ").trim();
+    return t.length > 46 ? t.slice(0, 45).trimEnd() + "…" : t;
+  }
+
+  /* Einmalige Übernahme des früheren Einzelverlaufs. */
+  function altbestandUebernehmen() {
+    const alt = speicher.lesen(SPEICHER_VERLAUF, null);
+    if (!alt || !alt.length) return;
+    const liste = chatsLesen();
+    const erste = alt.find((p) => p.rolle === "ich");
+    liste.push({
+      id: neueId(),
+      titel: erste ? kurzTitel(erste.text) : "Früheres Gespräch",
+      zeit: Date.now() - 1,
+      eintraege: alt
+    });
+    chatsSchreiben(liste);
+    speicher.loeschen(SPEICHER_VERLAUF);
+  }
 
   function verlaufMerken(eintrag) {
     if (!(CONFIG.optionen || {}).verlaufSpeichern) return;
-    const liste = speicher.lesen(SPEICHER_VERLAUF, []);
-    liste.push(eintrag);
-    speicher.schreiben(SPEICHER_VERLAUF, liste.slice(-60));
+    const liste = chatsLesen();
+    let chat = liste.find((c) => c.id === aktivId);
+
+    if (!chat) {
+      if (!aktivId) aktivId = neueId();
+      chat = { id: aktivId, titel: "", zeit: Date.now(), eintraege: [] };
+      liste.push(chat);
+    }
+    chat.eintraege.push(eintrag);
+    chat.zeit = Date.now();
+    if (!chat.titel && eintrag.rolle === "ich") chat.titel = kurzTitel(eintrag.text);
+
+    chatsSchreiben(liste);
+    speicher.schreiben(SPEICHER_AKTIV, aktivId);
+    chatlisteRendern();
   }
 
-  function verlaufHerstellen() {
-    if (!(CONFIG.optionen || {}).verlaufSpeichern) return false;
-    const liste = speicher.lesen(SPEICHER_VERLAUF, []);
-    if (!liste.length) return false;
-
-    liste.forEach((p) => {
+  /* Baut einen gespeicherten Gesprächsverlauf wieder auf. */
+  function verlaufZeichnen(eintraege) {
+    verlauf.textContent = "";
+    (eintraege || []).forEach((p) => {
       if (p.rolle === "ich") {
         frageAnzeigen(p.text);
       } else if (p.id) {
@@ -612,14 +714,49 @@
         verlauf.appendChild(antwortBlase(antwortKarte(e, p.status || "treffer")));
       }
     });
-    return true;
   }
 
-  function verlaufLeeren() {
-    speicher.loeschen(SPEICHER_VERLAUF);
+  function chatOeffnen(id) {
+    const chat = chatsLesen().find((c) => c.id === id);
+    if (!chat) return;
+    aktivId = id;
+    speicher.schreiben(SPEICHER_AKTIV, id);
+    verlaufZeichnen(chat.eintraege);
+    chatzustand();
+    schubladeSchliessen();
+    runter();
+  }
+
+  /* Neues Gespräch: das bisherige bleibt in der Seitenleiste erhalten,
+     deshalb ist hier keine Rückfrage nötig. */
+  function neuerChat() {
+    aktivId = null;
+    speicher.loeschen(SPEICHER_AKTIV);
     verlauf.textContent = "";
     leerzustand();
-    feld.focus();
+    chatlisteRendern();
+    schubladeSchliessen();
+    if (window.matchMedia("(min-width: 720px)").matches) feld.focus();
+  }
+
+  function chatLoeschen(id) {
+    const liste = chatsLesen().filter((c) => c.id !== id);
+    chatsSchreiben(liste);
+    if (id === aktivId) {
+      neuerChat();
+    } else {
+      chatlisteRendern();
+    }
+  }
+
+  function letzterChatHerstellen() {
+    if (!(CONFIG.optionen || {}).verlaufSpeichern) return false;
+    const id = speicher.lesen(SPEICHER_AKTIV, null);
+    const chat = chatsLesen().find((c) => c.id === id);
+    if (!chat || !chat.eintraege.length) return false;
+    aktivId = chat.id;
+    verlaufZeichnen(chat.eintraege);
+    return true;
   }
 
   /* ---------- Hell / Dunkel ------------------------------------------------- */
@@ -669,20 +806,20 @@
     }
   });
 
-  $("#btnThemen").addEventListener("click", () => {
-    schublade.classList.contains("auf") ? schubladeSchliessen() : schubladeOeffnen();
-  });
+  /* Bei offener Seitenleiste liegt dieser Knopf dahinter und ist nicht
+     erreichbar - ein Umschalten wäre toter Code. Geschlossen wird über das
+     Kreuz, den Hintergrund oder die Escape-Taste. */
+  $("#btnThemen").addEventListener("click", schubladeOeffnen);
 
   schublade.querySelectorAll("[data-schliessen]").forEach((n) =>
     n.addEventListener("click", schubladeSchliessen));
 
-  suche.addEventListener("input", () => themenRendern(suche.value, null));
+  suche.addEventListener("input", () => schubladeRendern(suche.value));
 
-  $("#btnNeu").addEventListener("click", () => {
-    if (verlauf.querySelector(".blase") &&
-        !confirm("Gespräch löschen und neu beginnen?")) return;
-    verlaufLeeren();
-  });
+  /* Kein Nachfragen mehr nötig: Das laufende Gespräch bleibt in der
+     Seitenleiste erhalten und ist jederzeit wieder aufrufbar. */
+  $("#btnNeu").addEventListener("click", neuerChat);
+  $("#btnNeuerChat").addEventListener("click", neuerChat);
 
   $("#btnTheme").addEventListener("click", () => {
     const jetzt = document.documentElement.getAttribute("data-theme");
@@ -697,16 +834,17 @@
 
   themeSetzen(speicher.lesen(SPEICHER_THEME, null));
 
-  const untertitel = document.getElementById("kopfSub");
-  if (untertitel && CONFIG.firma) {
-    untertitel.textContent = CONFIG.firma + " — intern";
-  }
+  altbestandUebernehmen();
 
-  /* Nur bei wiederhergestelltem Verlauf ans Ende springen -
+  /* Nur bei wiederhergestelltem Gespräch ans Ende springen -
      der Startbildschirm beginnt oben. */
-  if (verlaufHerstellen()) chatzustand(); else leerzustand();
+  if (letzterChatHerstellen()) {
+    chatzustand();
+    runter();
+  } else {
+    leerzustand();
+  }
   setupHinweisRendern();
-  if (app.getAttribute("data-zustand") === "chat") runter();
 
   if (window.matchMedia("(min-width: 720px)").matches) feld.focus();
 
@@ -718,6 +856,6 @@
   }
 
   /* Für die Konsole / admin.html */
-  window.T24 = { engine, fragen, themaOeffnen, verlaufLeeren };
+  window.T24 = { engine, fragen, themaOeffnen, neuerChat, chatOeffnen, chatLoeschen };
 
 })();
