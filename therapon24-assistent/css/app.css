@@ -89,10 +89,10 @@ a { color: var(--t24-primary); text-decoration-thickness: 1px; text-underline-of
 .buehne__zeichen { width: 44px; height: 44px; margin-bottom: 16px; }
 
 .buehne__titel {
-  font-size: 27px;
+  font-size: 26px;
   letter-spacing: -.02em;
   color: var(--t24-primary-darker);
-  margin-bottom: 7px;
+  margin-bottom: 24px;
 }
 .buehne__unter {
   font-size: 15.5px;
@@ -164,42 +164,31 @@ a { color: var(--t24-primary); text-decoration-thickness: 1px; text-underline-of
 }
 .antwort__leib { flex: 1 1 auto; min-width: 0; }
 
-.antwort__kopf { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 7px; }
-.antwort__titel { font-size: 17px; font-weight: 700; color: var(--t24-primary-darker); }
-.antwort__kurz  { font-size: 16px; }
+.antwort__kurz  { font-size: 16.5px; }
 .antwort__kurz strong { color: var(--t24-primary-darker); }
 
-.marke {
-  display: inline-flex; align-items: center;
-  font-size: 10.5px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .05em;
-  padding: 2px 8px;
-  border-radius: var(--t24-r-pill);
-  background: var(--t24-line-soft);
-  color: var(--t24-ink-faint);
-  white-space: nowrap;
+/* Erscheint nur, wenn die Zuordnung unsicher ist. */
+.deutung {
+  font-size: 14px; color: var(--t24-ink-faint);
+  margin-bottom: 6px;
 }
-.marke--gesetz   { background: var(--t24-accent-wash); color: var(--t24-accent-dark); }
-.marke--unsicher { background: var(--t24-warn-wash);   color: var(--t24-warn); }
+.deutung em { color: var(--t24-ink-soft); font-style: normal; font-weight: 600; }
 
 /* Schritt-für-Schritt */
 .schritte { margin: 13px 0 0; padding: 0; list-style: none; counter-reset: s; }
 .schritte li {
   counter-increment: s;
   position: relative;
-  padding-left: 31px;
-  margin-bottom: 8px;
+  padding-left: 25px;
+  margin-bottom: 7px;
   font-size: 15.5px;
 }
 .schritte li::before {
-  content: counter(s);
-  position: absolute; left: 0; top: 2px;
-  width: 21px; height: 21px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--t24-primary-wash);
-  color: var(--t24-primary-dark);
-  border-radius: 50%;
-  font-size: 11.5px; font-weight: 700;
+  content: counter(s) ".";
+  position: absolute; left: 2px; top: 0;
+  color: var(--t24-ink-faint);
+  font-size: 14.5px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .schritte li:last-child { margin-bottom: 0; }
 
@@ -223,62 +212,70 @@ a { color: var(--t24-primary); text-decoration-thickness: 1px; text-underline-of
 /* Platzhalter: fehlende Firmenangabe sichtbar machen statt zu erfinden */
 /* display:inline (nicht inline-flex) - nur so bricht der Marker mit dem
    Satz um, statt als unteilbarer Block den Text auseinanderzureißen. */
+/* Fehlende Firmenangabe: deutlich genug, um nicht überlesen zu werden,
+   aber ohne Farbkasten - sonst flackert die Antwort. */
 .fehlt {
   display: inline;
-  background: var(--t24-warn-wash);
   color: var(--t24-warn);
-  border-radius: 5px;
-  padding: 1px 5px;
-  font-size: .9em; font-weight: 600;
-  text-decoration: underline dashed currentColor;
+  font-size: .94em;
+  text-decoration: underline dotted currentColor;
   text-underline-offset: 3px;
 }
-.fehlt svg { width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; }
+.fehlt svg { display: none; }
 
-/* Ansprechpartner */
-.kontakt {
-  margin-top: 14px;
-  padding: 11px 14px;
-  background: var(--t24-accent-wash);
-  border-radius: var(--t24-r);
+/* Ansprechpartner: eine Zeile, kein Kasten */
+.kontaktzeile {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  margin-top: 13px;
+  font-size: 14.5px;
+  color: var(--t24-ink-faint);
 }
-.kontakt__label {
-  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .05em; color: var(--t24-accent-dark); margin-bottom: 4px;
-}
-.kontakt__name  { font-weight: 700; font-size: 15px; color: var(--t24-ink); }
-.kontakt__zeile { font-size: 14.5px; color: var(--t24-ink-soft); }
-.kontakt__aktionen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
-.kontakt__btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--t24-accent); color: #fff;
-  border: none; border-radius: var(--t24-r-pill);
-  padding: 7px 15px;
-  font: inherit; font-size: 14px; font-weight: 700;
-  text-decoration: none; cursor: pointer;
-  transition: background .15s;
-}
-.kontakt__btn:hover { background: var(--t24-accent-dark); }
-.kontakt__btn svg { width: 15px; height: 15px; }
+.kontaktzeile svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.kontaktzeile__label { color: var(--t24-ink-soft); font-weight: 600; }
+.kontaktzeile a { color: var(--t24-primary); text-decoration: none; font-weight: 600; }
+.kontaktzeile a:hover { text-decoration: underline; }
 
-/* Folgefragen */
-.folge { margin-top: 14px; }
-.folge__titel {
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .05em; color: var(--t24-ink-faint); margin-bottom: 7px;
+/* Folgefragen: ruhige Textverweise statt Kacheln */
+.folge {
+  margin-top: 13px;
+  font-size: 14.5px;
+  color: var(--t24-ink-faint);
+  line-height: 1.7;
 }
-.chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.chip {
-  background: none;
-  border: 1px solid var(--t24-line);
-  color: var(--t24-primary-dark);
-  border-radius: var(--t24-r-pill);
-  padding: 6px 14px;
-  font: inherit; font-size: 14px;
+.folge button {
+  background: none; border: none; padding: 0;
+  font: inherit; color: var(--t24-primary);
   cursor: pointer; text-align: left;
-  transition: background .15s, border-color .15s;
 }
-.chip:hover { background: var(--t24-surface); border-color: var(--t24-primary-light); }
+.folge button:hover { text-decoration: underline; }
+
+/* „Mehr dazu“: alles Erklärende bleibt eingeklappt */
+.mehr { margin-top: 13px; }
+.mehr > summary {
+  display: inline-flex; align-items: center; gap: 5px;
+  list-style: none; cursor: pointer;
+  font-size: 14px; font-weight: 600;
+  color: var(--t24-ink-faint);
+  padding: 2px 0;
+}
+.mehr > summary::-webkit-details-marker { display: none; }
+.mehr > summary::after {
+  content: "";
+  width: 6px; height: 6px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform .15s;
+}
+.mehr[open] > summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.mehr > summary:hover { color: var(--t24-primary); }
+
+.rechtsnote {
+  margin-top: 11px;
+  font-size: 13.5px;
+  color: var(--t24-ink-faint);
+  font-style: italic;
+}
 
 /* Bewertung */
 .bewertung {
@@ -359,10 +356,12 @@ a { color: var(--t24-primary); text-decoration-thickness: 1px; text-underline-of
 .fussnote {
   font-size: 11.5px; color: var(--t24-ink-faint);
   text-align: center;
-  padding: 9px 10px 0;
+  padding: 11px 10px 0;
   line-height: 1.4;
   margin: 0;
 }
+/* Im Gespräch stört der Dauerhinweis - er steht im Leerzustand. */
+.app[data-zustand="chat"] .fussnote { display: none; }
 
 /* ---------- Seitenleiste (Themen) ---------------------------------------- */
 

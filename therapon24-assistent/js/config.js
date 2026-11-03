@@ -106,6 +106,9 @@ window.T24_CONFIG = {
     kiModus: "auto",
     apiPfad: "/api/chat",
     verlaufSpeichern: true,        // Chatverlauf lokal im Browser behalten
-    feedbackSammeln: true          // Daumen hoch/runter anbieten
+    /* Daumen hoch/runter unter jeder Antwort. Standardmäßig aus, damit die
+       Oberfläche ruhig bleibt. Auf true setzen, um Rückmeldungen zu sammeln
+       (Auswertung in admin.html unter „Rückmeldungen“). */
+    feedbackSammeln: false
   }
 };

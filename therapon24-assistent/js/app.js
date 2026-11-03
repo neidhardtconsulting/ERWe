@@ -83,11 +83,13 @@
       if (treffer[1] !== undefined) {
         ziel.appendChild(el("strong", null, treffer[1]));
       } else if (treffer[2] !== undefined) {
-        const chip = el("span", "fehlt");
-        chip.appendChild(ikon("warn", "2"));
-        chip.appendChild(document.createTextNode("noch offen: " + treffer[2]));
-        chip.title = "Diese Angabe ist bei Therapon24 noch nicht hinterlegt " +
-                     "(js/config.js). Bitte bei der Ansprechperson nachfragen.";
+        /* Bewusst nur zwei Wörter im Lesefluss - welche Angabe fehlt, steht
+           im Tooltip und vollständig in admin.html. Sonst besteht eine
+           halbfertige Antwort zur Hälfte aus Warnhinweisen. */
+        const chip = el("span", "fehlt", "noch offen");
+        chip.title = treffer[2].charAt(0).toUpperCase() + treffer[2].slice(1) +
+                     " — bei Therapon24 noch nicht hinterlegt. " +
+                     "Bitte bei der Ansprechperson nachfragen.";
         ziel.appendChild(chip);
       } else {
         const a = el("a", null, treffer[3]);
@@ -127,7 +129,19 @@
   /* Inhalte gehören neben das Signet, nicht in die Flex-Hülle. */
   function leibVon(karte) { return karte.querySelector(".antwort__leib") || karte; }
 
-  /* ---------- Darstellung: Antwortkarte ----------------------------------- */
+  /* ---------- Darstellung: Antwortkarte -----------------------------------
+     Grundsatz: so wenig wie möglich auf einmal. Sichtbar ist nur, was zum
+     Handeln nötig ist — Kernantwort, Schritte, dringende Warnung und die
+     Ansprechperson. Erklärungen und Rechtsgrundlagen liegen unter
+     „Mehr dazu“ und stören nicht beim schnellen Nachschlagen.            */
+
+  function hinweisBox(h) {
+    const box = el("div", "hinweis hinweis--" + h.ton);
+    const name = { info: "info", ok: "ok", warn: "warn", urgent: "urgent" }[h.ton] || "info";
+    box.appendChild(ikon(name, "1.9"));
+    box.appendChild(textKnoten(el("div"), h.text));
+    return box;
+  }
 
   function antwortKarte(e, status) {
     const karte = el("article", "antwort");
@@ -142,20 +156,14 @@
     const leib = el("div", "antwort__leib");
     karte.appendChild(leib);
 
-    /* Kopf: Thema + Kennzeichnungen */
-    const kopf = el("div", "antwort__kopf");
-    if (e.frage) kopf.appendChild(el("h3", "antwort__titel", e.frage));
-    if (e.kategorieLabel) kopf.appendChild(el("span", "marke", e.kategorieLabel));
-    if (e.rechtlich) {
-      const m = el("span", "marke marke--gesetz", "Allgemeine Rechtslage");
-      m.title = "Diese Antwort gibt die allgemeine Gesetzeslage wieder, " +
-                "keine Therapon24-interne Regelung.";
-      kopf.appendChild(m);
+    /* Nur bei unsicherer Zuordnung zeigen, was verstanden wurde.
+       Bei einem klaren Treffer wäre das bloße Wiederholung der Frage. */
+    if (status === "unsicher" && e.frage) {
+      const z = el("p", "deutung");
+      z.appendChild(document.createTextNode("Ich verstehe das als: "));
+      z.appendChild(el("em", null, e.frage));
+      leib.appendChild(z);
     }
-    if (status === "unsicher") {
-      kopf.appendChild(el("span", "marke marke--unsicher", "Passt das?"));
-    }
-    if (kopf.childNodes.length) leib.appendChild(kopf);
 
     /* Kernantwort */
     leib.appendChild(textKnoten(el("p", "antwort__kurz"), e.kurz));
@@ -167,71 +175,76 @@
       leib.appendChild(ol);
     }
 
-    /* Hinweise */
-    (e.hinweise || []).forEach((h) => {
-      const box = el("div", "hinweis hinweis--" + h.ton);
-      const name = { info: "info", ok: "ok", warn: "warn", urgent: "urgent" }[h.ton] || "info";
-      box.appendChild(ikon(name, "1.9"));
-      box.appendChild(textKnoten(el("div"), h.text));
-      leib.appendChild(box);
-    });
+    /* Nur Dringendes steht sofort da — alles Erklärende wandert nach unten. */
+    const hinweise = e.hinweise || [];
+    hinweise.filter((h) => h.ton === "urgent")
+            .forEach((h) => leib.appendChild(hinweisBox(h)));
 
-    /* Ansprechpartner */
+    /* Ansprechpartner als eine ruhige Zeile, nicht als Kasten */
     if (e.kontakt) leib.appendChild(kontaktKarte(e.kontakt));
 
-    /* Folgefragen */
+    /* Aufklappbar: Erklärungen, Rechtsgrundlage */
+    const rest = hinweise.filter((h) => h.ton !== "urgent");
+    if (rest.length || e.rechtlich) {
+      const mehr = document.createElement("details");
+      mehr.className = "mehr";
+      const titel = document.createElement("summary");
+      titel.textContent = "Mehr dazu";
+      mehr.appendChild(titel);
+      rest.forEach((h) => mehr.appendChild(hinweisBox(h)));
+      if (e.rechtlich) {
+        mehr.appendChild(el("p", "rechtsnote",
+          "Allgemeine Gesetzeslage — keine Therapon24-interne Regelung."));
+      }
+      /* Beim Aufklappen am unteren Rand bliebe der Inhalt sonst unsichtbar. */
+      mehr.addEventListener("toggle", () => {
+        if (mehr.open) mehr.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
+      leib.appendChild(mehr);
+    }
+
     return karte;
   }
 
+  /* Ansprechpartner: eine Zeile mit Anruf- und Mail-Verweis. */
   function kontaktKarte(k) {
-    const box = el("div", "kontakt");
-    box.appendChild(el("div", "kontakt__label", "Ansprechpartner"));
-    box.appendChild(el("div", "kontakt__name", k.label));
-    if (k.name)   box.appendChild(el("div", "kontakt__zeile", k.name));
-    if (k.zeiten) box.appendChild(el("div", "kontakt__zeile", "Erreichbar: " + k.zeiten));
+    const zeile = el("div", "kontaktzeile");
+    zeile.appendChild(ikon("phone", "1.8"));
+    zeile.appendChild(el("span", "kontaktzeile__label", k.label));
 
     if (!k.tel && !k.mail) {
-      const fehlt = el("div", "kontakt__zeile");
       const chip = el("span", "fehlt");
-      chip.appendChild(ikon("warn", "2"));
-      chip.appendChild(document.createTextNode(
-        "noch offen: Telefon und E-Mail für „" + k.label + "“"));
-      fehlt.appendChild(chip);
-      box.appendChild(fehlt);
-      return box;
+      chip.appendChild(document.createTextNode("Kontaktdaten noch offen"));
+      chip.title = "Telefon und E-Mail für „" + k.label +
+                   "“ sind in js/config.js noch nicht hinterlegt.";
+      zeile.appendChild(chip);
+      return zeile;
     }
-
-    const aktionen = el("div", "kontakt__aktionen");
     if (k.tel) {
-      const a = el("a", "kontakt__btn");
+      const a = el("a", null, k.tel);
       a.href = "tel:" + k.tel.replace(/[^\d+]/g, "");
-      a.appendChild(ikon("phone", "1.7"));
-      a.appendChild(document.createTextNode(k.tel));
-      aktionen.appendChild(a);
+      zeile.appendChild(a);
     }
     if (k.mail) {
-      const a = el("a", "kontakt__btn");
+      const a = el("a", null, "E-Mail");
       a.href = "mailto:" + k.mail;
-      a.appendChild(ikon("mail", "1.7"));
-      a.appendChild(document.createTextNode("E-Mail"));
-      aktionen.appendChild(a);
+      zeile.appendChild(a);
     }
-    box.appendChild(aktionen);
-    return box;
+    return zeile;
   }
 
+  /* Folgefragen: höchstens drei, als ruhige Textverweise statt als Kacheln. */
   function folgefragen(titel, liste) {
     if (!liste || !liste.length) return null;
     const box = el("div", "folge");
-    box.appendChild(el("div", "folge__titel", titel));
-    const chips = el("div", "chips");
-    liste.forEach((v) => {
-      const b = el("button", "chip", v.frage);
+    box.appendChild(document.createTextNode(titel + ": "));
+    liste.slice(0, 2).forEach((v, i) => {
+      if (i) box.appendChild(document.createTextNode(" · "));
+      const b = el("button", null, v.frage);
       b.type = "button";
       b.addEventListener("click", () => themaOeffnen(v.id));
-      chips.appendChild(b);
+      box.appendChild(b);
     });
-    box.appendChild(chips);
     return box;
   }
 
@@ -307,10 +320,10 @@
       const leib = leibVon(karte);
 
       if (ergebnis.status === "unsicher" && ergebnis.alternativen.length) {
-        const alt = folgefragen("Oder meintest du …", ergebnis.alternativen);
+        const alt = folgefragen("Oder", ergebnis.alternativen);
         if (alt) leib.appendChild(alt);
       }
-      const f = folgefragen("Passt dazu", ergebnis.vorschlaege);
+      const f = folgefragen("Auch dazu", ergebnis.vorschlaege);
       if (f) leib.appendChild(f);
 
       const b = bewertungsZeile(ergebnis.eintrag.id, frageText);
@@ -440,7 +453,7 @@
     const karte = antwortKarte(e, "treffer");
     const leib = leibVon(karte);
     const verwandte = (window.T24_WISSEN.find((x) => x.id === id) || {}).verwandt || [];
-    const f = folgefragen("Passt dazu", verwandte
+    const f = folgefragen("Auch dazu", verwandte
       .map((vid) => window.T24_WISSEN.find((x) => x.id === vid))
       .filter(Boolean).map((x) => ({ id: x.id, frage: x.frage })));
     if (f) leib.appendChild(f);

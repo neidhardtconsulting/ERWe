@@ -17,6 +17,11 @@ Aufgebaut wie ein gewohnter Chat-Assistent — man kann sofort lostippen:
 - **Nach der ersten Frage:** Die Eingabe dockt unten an, der Verlauf füllt den
   Schirm. Frage rechts als Blase, Antwort links mit Signet — ohne Kartenrahmen,
   damit lange Antworten ruhig lesbar bleiben.
+- **Bewusst reduziert:** Sichtbar ist nur, was zum Handeln nötig ist —
+  Kernantwort, Schritte, dringende Warnung, Ansprechperson. Erklärungen und
+  Rechtsgrundlagen liegen unter „Mehr dazu“. Keine Kategorie-Etiketten, keine
+  wiederholte Überschrift, höchstens zwei Folgefragen. Die Bewertungszeile ist
+  standardmäßig aus (`optionen.feedbackSammeln` in `js/config.js`).
 - **Seitenleiste (☰ links oben):** alle 58 Fragen nach Bereichen sortiert,
   mit Suchfeld.
 - **Stift-Symbol rechts oben:** neues Gespräch. Der Verlauf bleibt sonst
@@ -142,7 +147,8 @@ therapon24-assistent/
 ```
 
 - `{{pfad.aus.config}}` wird zur Laufzeit ersetzt; fehlt der Wert, erscheint
-  der gelbe Hinweis. **Platzhalter ans Satzende setzen**, nicht mitten in einen
+  im Text nur das kurze Signal „noch offen“ (welche Angabe fehlt, steht im
+  Tooltip und vollständig in `admin.html`). **Platzhalter ans Satzende setzen**, nicht mitten in einen
   Satz — sonst zerreißt der Marker den Lesefluss. Mehrere Angaben mit „ · “
   trennen statt mit Punkt.
 - `**Text**` wird fett dargestellt.
